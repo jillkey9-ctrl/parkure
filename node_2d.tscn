@@ -22,7 +22,7 @@ offset_left = -20.0
 offset_top = -21.0
 offset_right = 20.0
 offset_bottom = 19.0
-color = Color(0, 0, 1, 1)
+color = Color(0.9264051, 0, 0.0077908286, 1)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1472610264]
 
