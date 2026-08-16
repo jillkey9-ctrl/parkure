@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cph30m362fxvx"]
 
 [ext_resource type="Script" uid="uid://55lac2756b0u" path="res://scripts/player.gd" id="1_wtcfe"]
+[ext_resource type="Script" uid="uid://bvy5s0cd0os3k" path="res://button.gd" id="2_0e48y"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_qljxh"]
 radius = 20.09975
@@ -47,3 +48,13 @@ offset_bottom = 67.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2" unique_id=1376608541]
 shape = SubResource("SegmentShape2D_qljxh")
+
+[node name="Button" type="Button" parent="." unique_id=1958992385]
+offset_left = 231.0
+offset_top = 122.0
+offset_right = 370.0
+offset_bottom = 167.0
+text = "Хуй"
+script = ExtResource("2_0e48y")
+
+[connection signal="pressed" from="Button" to="Button" method="_on_pressed"]
