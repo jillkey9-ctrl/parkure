@@ -13,6 +13,7 @@ b = Vector2(432, 30)
 [node name="test" type="Node2D" unique_id=1378794895]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1452798082]
+position = Vector2(124, -206)
 script = ExtResource("1_wtcfe")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=1376661818]
@@ -50,10 +51,10 @@ offset_bottom = 67.0
 shape = SubResource("SegmentShape2D_qljxh")
 
 [node name="Button" type="Button" parent="." unique_id=1958992385]
-offset_left = 231.0
-offset_top = 122.0
-offset_right = 370.0
-offset_bottom = 167.0
+offset_left = 421.0
+offset_top = -308.0
+offset_right = 560.0
+offset_bottom = -263.0
 text = "Хуй"
 script = ExtResource("2_0e48y")
 
