@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://55lac2756b0u" path="res://scripts/player.gd" id="1_wtcfe"]
 [ext_resource type="Script" uid="uid://bvy5s0cd0os3k" path="res://button.gd" id="2_0e48y"]
+[ext_resource type="Script" uid="uid://8ks57yqm4n8e" path="res://scripts/camera.gd" id="3_0hol4"]
+[ext_resource type="Script" uid="uid://c56ucgl1mqknu" path="res://scripts/SpringPad.gd" id="3_epypp"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_qljxh"]
 radius = 20.09975
@@ -9,6 +11,9 @@ radius = 20.09975
 [sub_resource type="SegmentShape2D" id="SegmentShape2D_qljxh"]
 a = Vector2(-100, 29)
 b = Vector2(432, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
+size = Vector2(40, 39)
 
 [node name="test" type="Node2D" unique_id=1378794895]
 
@@ -58,6 +63,26 @@ offset_bottom = -263.0
 text = "Хуй"
 script = ExtResource("2_0e48y")
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1098029224]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1098029224 node_paths=PackedStringArray("target")]
+script = ExtResource("3_0hol4")
+target = NodePath("../CharacterBody2D")
+
+[node name="prujina" type="Area2D" parent="." unique_id=1101770524 node_paths=PackedStringArray("direction_ray")]
+position = Vector2(224, -14)
+script = ExtResource("3_epypp")
+direction_ray = NodePath("RayCast2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="prujina" unique_id=2040638734]
+position = Vector2(19, 19.5)
+shape = SubResource("RectangleShape2D_qljxh")
+
+[node name="ColorRect" type="ColorRect" parent="prujina" unique_id=256122975]
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0, 1, 0, 1)
+
+[node name="RayCast2D" type="RayCast2D" parent="prujina" unique_id=868775743]
+position = Vector2(19, 19)
+target_position = Vector2(-46, -45)
 
 [connection signal="pressed" from="Button" to="Button" method="_on_pressed"]

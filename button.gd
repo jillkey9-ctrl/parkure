@@ -12,5 +12,5 @@ func _process(delta: float) -> void:
 
 
 func _on_pressed() -> void:
-	print("И тут хуй")
-	pass # Replace with function body.
+	print("сьебался на хуй")
+	get_tree().quit()

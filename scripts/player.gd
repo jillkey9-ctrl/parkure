@@ -1,4 +1,4 @@
-class_name FastParkourPlayer
+class_name Player
 extends CharacterBody2D
 
 @export var run_speed := 360.0
@@ -32,6 +32,8 @@ extends CharacterBody2D
 @export var wall_jump_lockout := 0.1
 @export var invert_climb_input := false
 @export var climb_contact_grace := 0.08
+@export var spring_gravity_multiplier := 2.2
+@export var spring_gravity_duration := 0.35
 
 var input_dir := Vector2.ZERO
 var facing := 1
@@ -48,6 +50,7 @@ var climb_wall_side := 0
 var touch_wall_side := 0
 var climb_lockout_timer := 0.0
 var climb_lost_timer := 0.0
+var spring_gravity_timer := 0.0
 
 func _ready() -> void:
 	dashes_remaining = max_air_dashes
@@ -69,6 +72,7 @@ func _physics_process(delta: float) -> void:
 	dash_buffer_timer = maxf(dash_buffer_timer - delta, 0.0)
 	dash_cooldown_timer = maxf(dash_cooldown_timer - delta, 0.0)
 	climb_lockout_timer = maxf(climb_lockout_timer - delta, 0.0)
+	spring_gravity_timer = maxf(spring_gravity_timer - delta, 0.0)
 
 	update_wall_contact()
 	update_climb_state(delta)
@@ -101,6 +105,7 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor():
 		dashes_remaining = max_air_dashes
 		coyote_timer = coyote_time
+		spring_gravity_timer = 0.0
 
 func get_input_direction() -> Vector2:
 	return Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -120,6 +125,7 @@ func update_climb_state(delta: float) -> void:
 		return
 
 	var holding_grab := Input.is_action_pressed("grab")
+	var is_sliding := touch_wall_side != 0 and velocity.y > wall_slide_speed
 
 	if is_climbing:
 		if not holding_grab:
@@ -137,7 +143,7 @@ func update_climb_state(delta: float) -> void:
 					climb_wall_side = 0
 		return
 
-	if holding_grab and touch_wall_side != 0 and climb_lockout_timer <= 0.0:
+	if (holding_grab or is_sliding) and touch_wall_side != 0 and climb_lockout_timer <= 0.0:
 		is_climbing = true
 		climb_wall_side = touch_wall_side
 		climb_lost_timer = climb_contact_grace
@@ -238,6 +244,22 @@ func run_normal(delta: float) -> void:
 			current_gravity *= fall_gravity_multiplier
 			if input_dir.y > 0.0 and touch_wall_side == 0:
 				current_gravity *= fast_fall_gravity_multiplier
+		if spring_gravity_timer > 0.0:
+			current_gravity *= spring_gravity_multiplier
 		velocity.y = minf(velocity.y + current_gravity * delta, max_fall_speed)
 		if touch_wall_side != 0 and velocity.y > wall_slide_speed:
 			velocity.y = move_toward(velocity.y, wall_slide_speed, wall_slide_accel * delta)
+
+func apply_spring_bounce(bounce_velocity: Vector2) -> void:
+	velocity = bounce_velocity
+	is_climbing = false
+	climb_wall_side = 0
+	climb_lost_timer = 0.0
+	dash_timer = 0.0
+	dash_cooldown_timer = 0.0
+	dashes_remaining = max_air_dashes
+	jump_buffer_timer = 0.0
+	coyote_timer = 0.0
+	spring_gravity_timer = spring_gravity_duration
+	if absf(velocity.x) > 0.1:
+		facing = 1 if velocity.x > 0.0 else -1
