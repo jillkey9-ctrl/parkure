@@ -5,31 +5,17 @@
 [ext_resource type="Script" uid="uid://8ks57yqm4n8e" path="res://scripts/camera.gd" id="3_0hol4"]
 [ext_resource type="Script" uid="uid://c56ucgl1mqknu" path="res://scripts/SpringPad.gd" id="3_epypp"]
 
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_qljxh"]
+a = Vector2(-100, 28)
+b = Vector2(195, 28)
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_qljxh"]
 radius = 20.09975
-
-[sub_resource type="SegmentShape2D" id="SegmentShape2D_qljxh"]
-a = Vector2(-100, 29)
-b = Vector2(432, 30)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
 size = Vector2(40, 39)
 
 [node name="test" type="Node2D" unique_id=1378794895]
-
-[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1452798082]
-position = Vector2(124, -206)
-script = ExtResource("1_wtcfe")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=1376661818]
-shape = SubResource("CircleShape2D_qljxh")
-
-[node name="ColorRect" type="ColorRect" parent="CharacterBody2D" unique_id=1895881988]
-offset_left = -20.0
-offset_top = -21.0
-offset_right = 20.0
-offset_bottom = 19.0
-color = Color(0.9264051, 0, 0.0077908286, 1)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1472610264]
 
@@ -55,6 +41,59 @@ offset_bottom = 67.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2" unique_id=1376608541]
 shape = SubResource("SegmentShape2D_qljxh")
 
+[node name="StaticBody2D3" type="StaticBody2D" parent="." unique_id=588963319]
+position = Vector2(370, -378)
+rotation = -0.31799802
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D3" unique_id=1972427966]
+offset_left = -100.0
+offset_top = 27.0
+offset_right = 195.0
+offset_bottom = 67.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3" unique_id=1018473300]
+shape = SubResource("SegmentShape2D_qljxh")
+
+[node name="StaticBody2D5" type="StaticBody2D" parent="." unique_id=703331470]
+position = Vector2(650, -470)
+rotation = -0.31799802
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D5" unique_id=521457345]
+offset_left = -100.0
+offset_top = 27.0
+offset_right = 195.0
+offset_bottom = 67.0
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D5" unique_id=391824911]
+shape = SubResource("SegmentShape2D_qljxh")
+
+[node name="StaticBody2D4" type="StaticBody2D" parent="." unique_id=1734198811]
+position = Vector2(295, 0)
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D4" unique_id=668356387]
+offset_left = -100.0
+offset_top = 27.0
+offset_right = 195.0
+offset_bottom = 67.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4" unique_id=155781210]
+shape = SubResource("SegmentShape2D_qljxh")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1452798082]
+position = Vector2(124, -206)
+script = ExtResource("1_wtcfe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=1376661818]
+shape = SubResource("CircleShape2D_qljxh")
+
+[node name="ColorRect" type="ColorRect" parent="CharacterBody2D" unique_id=1895881988]
+offset_left = -20.0
+offset_top = -21.0
+offset_right = 20.0
+offset_bottom = 19.0
+color = Color(0.9264051, 0, 0.0077908286, 1)
+
 [node name="Button" type="Button" parent="." unique_id=1958992385]
 offset_left = 421.0
 offset_top = -308.0
@@ -68,7 +107,7 @@ script = ExtResource("3_0hol4")
 target = NodePath("../CharacterBody2D")
 
 [node name="prujina" type="Area2D" parent="." unique_id=1101770524 node_paths=PackedStringArray("direction_ray")]
-position = Vector2(224, -14)
+position = Vector2(229, -83)
 script = ExtResource("3_epypp")
 direction_ray = NodePath("RayCast2D")
 
@@ -83,6 +122,26 @@ color = Color(0, 1, 0, 1)
 
 [node name="RayCast2D" type="RayCast2D" parent="prujina" unique_id=868775743]
 position = Vector2(19, 19)
-target_position = Vector2(-46, -45)
+target_position = Vector2(-41, -64)
+
+[node name="prujina2" type="Area2D" parent="." unique_id=659878950 node_paths=PackedStringArray("direction_ray")]
+position = Vector2(309, -44)
+script = ExtResource("3_epypp")
+direction_ray = NodePath("RayCast2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="prujina2" unique_id=105603117]
+position = Vector2(-273, -147.5)
+shape = SubResource("RectangleShape2D_qljxh")
+
+[node name="ColorRect" type="ColorRect" parent="prujina2" unique_id=1620670230]
+offset_left = -293.0
+offset_top = -168.0
+offset_right = -253.0
+offset_bottom = -128.0
+color = Color(0, 1, 0, 1)
+
+[node name="RayCast2D" type="RayCast2D" parent="prujina2" unique_id=1655994619]
+position = Vector2(-273, -148)
+target_position = Vector2(61, -61)
 
 [connection signal="pressed" from="Button" to="Button" method="_on_pressed"]
