@@ -1,0 +1,231 @@
+[gd_scene format=3 uid="uid://cph30m362fxvx"]
+
+[ext_resource type="Script" uid="uid://55lac2756b0u" path="res://scripts/player.gd" id="1_wtcfe"]
+[ext_resource type="Script" uid="uid://bvy5s0cd0os3k" path="res://button.gd" id="2_0e48y"]
+[ext_resource type="Script" uid="uid://8ks57yqm4n8e" path="res://scripts/camera.gd" id="3_0hol4"]
+[ext_resource type="Script" uid="uid://c56ucgl1mqknu" path="res://scripts/SpringPad.gd" id="3_epypp"]
+[ext_resource type="Script" uid="uid://b65x28rx6xind" path="res://scripts/orb.gd" id="5_68awo"]
+[ext_resource type="Script" uid="uid://rlqtavbesylx" path="res://scripts/ventelator.gd" id="6_1phwq"]
+[ext_resource type="Script" uid="uid://dqg8fnqruuvjk" path="res://scripts/platform.gd" id="7_ob1gf"]
+[ext_resource type="Script" uid="uid://do6mh808sjxqo" path="res://scripts/platformCollision.gd" id="8_33met"]
+[ext_resource type="Script" uid="uid://j8trqln1afi6" path="res://scripts/water.gd" id="9_1phwq"]
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_qljxh"]
+a = Vector2(-500, 1)
+b = Vector2(4000, 1)
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_ob1gf"]
+a = Vector2(-500, 1)
+b = Vector2(4000, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_qljxh"]
+radius = 20.09975
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
+size = Vector2(40, 39)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_51f6n"]
+radius = 29.068884
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_51f6n"]
+size = Vector2(48, 333)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wwlt4"]
+size = Vector2(93, 45)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8prbo"]
+size = Vector2(90, 101)
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_51f6n"]
+a = Vector2(-46, 1)
+b = Vector2(44, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u5vs0"]
+size = Vector2(394, 416)
+
+[node name="test" type="Node2D" unique_id=1378794895]
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="." unique_id=1182418727]
+position = Vector2(-33, -165)
+rotation = 1.5707964
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D2" unique_id=596896262]
+offset_left = -99.0
+offset_top = 2.0000038
+offset_right = 196.0
+offset_bottom = 42.000004
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2" unique_id=1376608541]
+shape = SubResource("SegmentShape2D_qljxh")
+
+[node name="StaticBody2D4" type="StaticBody2D" parent="." unique_id=1734198811]
+position = Vector2(295, 0)
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D4" unique_id=668356387]
+offset_left = -370.0
+offset_right = 3110.0
+offset_bottom = 40.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4" unique_id=155781210]
+shape = SubResource("SegmentShape2D_ob1gf")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1452798082 node_paths=PackedStringArray("stamina_bar")]
+position = Vector2(45, -70)
+script = ExtResource("1_wtcfe")
+stamina_bar = NodePath("../CanvasLayer/ColorRect")
+stamina_color = Color(0.54509807, 1, 0.23921569, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=1376661818]
+shape = SubResource("CircleShape2D_qljxh")
+
+[node name="ColorRect" type="ColorRect" parent="CharacterBody2D" unique_id=1895881988]
+offset_left = -20.0
+offset_top = -21.0
+offset_right = 20.0
+offset_bottom = 19.0
+color = Color(0.9264051, 0, 0.0077908286, 1)
+
+[node name="Button" type="Button" parent="." unique_id=1958992385]
+offset_left = 421.0
+offset_top = -308.0
+offset_right = 560.0
+offset_bottom = -263.0
+text = "Хуй"
+script = ExtResource("2_0e48y")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1098029224 node_paths=PackedStringArray("target")]
+script = ExtResource("3_0hol4")
+target = NodePath("../CharacterBody2D")
+
+[node name="prujina2" type="Area2D" parent="." unique_id=659878950 node_paths=PackedStringArray("direction_ray")]
+position = Vector2(47, -196)
+script = ExtResource("3_epypp")
+direction_ray = NodePath("RayCast2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="prujina2" unique_id=105603117]
+position = Vector2(0, 1.5)
+shape = SubResource("RectangleShape2D_qljxh")
+
+[node name="ColorRect" type="ColorRect" parent="prujina2" unique_id=1620670230]
+offset_left = -20.0
+offset_top = -19.0
+offset_right = 20.0
+offset_bottom = 21.0
+color = Color(0, 1, 0, 1)
+
+[node name="RayCast2D" type="RayCast2D" parent="prujina2" unique_id=1655994619]
+position = Vector2(0, 1)
+target_position = Vector2(61, -61)
+
+[node name="orb" type="Area2D" parent="." unique_id=1618205107 node_paths=PackedStringArray("target")]
+position = Vector2(294, -285)
+script = ExtResource("5_68awo")
+target = NodePath("center")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="orb" unique_id=2125260046]
+shape = SubResource("CircleShape2D_51f6n")
+
+[node name="ColorRect" type="ColorRect" parent="orb" unique_id=1461649843]
+modulate = Color(1, 1, 1, 0.7490196)
+offset_left = -30.0
+offset_top = -29.0
+offset_right = 30.0
+offset_bottom = 30.0
+color = Color(0.47843137, 0.48235294, 0.50980395, 1)
+
+[node name="center" type="Node2D" parent="orb" unique_id=458480086]
+
+[node name="vintilator" type="Area2D" parent="." unique_id=1780298843 node_paths=PackedStringArray("raycast")]
+position = Vector2(410, -237)
+script = ExtResource("6_1phwq")
+raycast = NodePath("RayCast2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="vintilator" unique_id=1205458015]
+position = Vector2(14, -156.5)
+shape = SubResource("RectangleShape2D_51f6n")
+
+[node name="RayCast2D" type="RayCast2D" parent="vintilator" unique_id=161900642]
+position = Vector2(12, 4)
+target_position = Vector2(0, -323)
+
+[node name="ColorRect" type="ColorRect" parent="vintilator" unique_id=992973367]
+offset_left = -22.0
+offset_top = -1.0
+offset_right = 18.0
+offset_bottom = 39.0
+scale = Vector2(1.7386006, 0.91329104)
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="vintilator" unique_id=1868989930]
+offset_left = -10.0
+offset_top = -330.0
+offset_right = 40.0
+offset_bottom = 5.0
+color = Color(1, 1, 1, 0.09411765)
+
+[node name="lineForPlatform1" type="Line2D" parent="." unique_id=1764422127]
+position = Vector2(513, -345)
+points = PackedVector2Array(370, 4, 302, 29, 246, 42, 172, 53, 122, 54, 86, 46, 31, 20, -19, -35)
+
+[node name="platform1" type="AnimatableBody2D" parent="." unique_id=752363851 node_paths=PackedStringArray("line_path")]
+position = Vector2(496, -373)
+script = ExtResource("7_ob1gf")
+line_path = NodePath("../lineForPlatform1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="platform1" unique_id=933616428]
+position = Vector2(27.5, 2.5)
+shape = SubResource("RectangleShape2D_wwlt4")
+
+[node name="ColorRect" type="ColorRect" parent="platform1" unique_id=1287382428]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 75.0
+offset_bottom = 25.0
+color = Color(0, 0.0333333, 1, 1)
+
+[node name="platformCollision" type="Area2D" parent="." unique_id=1493431791 node_paths=PackedStringArray("static_body")]
+position = Vector2(177, -96)
+script = ExtResource("8_33met")
+static_body = NodePath("StaticBody2D")
+
+[node name="ColorRect" type="ColorRect" parent="platformCollision" unique_id=1563124239]
+offset_left = -46.0
+offset_right = 44.0
+offset_bottom = 40.0
+color = Color(1, 0, 0.8999996, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="platformCollision" unique_id=1564860915]
+position = Vector2(-1, 11.5)
+shape = SubResource("RectangleShape2D_8prbo")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="platformCollision" unique_id=2064707768]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="platformCollision/StaticBody2D" unique_id=663325091]
+position = Vector2(0, 1)
+shape = SubResource("SegmentShape2D_51f6n")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=948556172]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=403700061]
+offset_left = 21.0
+offset_top = 585.0
+offset_right = 312.0
+offset_bottom = 625.0
+color = Color(0.5439999, 1, 0.24000001, 1)
+
+[node name="water" type="Area2D" parent="." unique_id=1856407536]
+position = Vector2(1152, -348)
+script = ExtResource("9_1phwq")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="water" unique_id=159541791]
+position = Vector2(1, 0)
+shape = SubResource("RectangleShape2D_u5vs0")
+
+[node name="ColorRect" type="ColorRect" parent="water" unique_id=1085249513]
+offset_left = -196.0
+offset_top = -209.0
+offset_right = 199.0
+offset_bottom = 209.0
+color = Color(0, 0.3333335, 1, 0.30980393)
+
+[connection signal="pressed" from="Button" to="Button" method="_on_pressed"]
