@@ -40,6 +40,8 @@ var stamina_regen_rate := 60.0
 var stamina_drain_rate := 12.0
 var stamina_climb_up_rate := 25.0
 var stamina_climb_down_rate := 6.0
+var stamina_grind_idle_rate := 4.0
+var stamina_grind_move_rate := 7.0
 var spring_gravity_multiplier := 2.2
 var spring_gravity_duration := 0.35
 var grab_slide_speed := 0.0
@@ -51,6 +53,12 @@ var water_swim_drag := 350.0
 var water_dash_speed := 250.0
 var water_dash_drag := 300.0
 var water_gravity := 200.0
+
+var grind_speed := 0.12
+var grind_accel := 6.0
+var current_grind_speed := 0.0
+var target_grind_pos := Vector2.ZERO
+var grind_snap_speed := 600.0
 
 var input_dir := Vector2.ZERO
 var facing := 1
@@ -88,6 +96,13 @@ var original_color_rect_position := Vector2.ZERO
 var crouch_color_rect_size := Vector2.ZERO
 var crouch_color_rect_position := Vector2.ZERO
 
+var is_grinding := false
+var current_rail: GrindRail = null
+var grab_t := 0.0
+var grab_cooldown_timer := 0.0
+var grab_cooldown_time := 0.6
+var last_move_dir := Vector2.ZERO
+
 func _ready() -> void:
 	dashes_remaining = max_air_dashes
 	current_stamina = max_stamina
@@ -122,6 +137,8 @@ func _physics_process(delta: float) -> void:
 	input_dir = get_input_direction()
 	if absf(input_dir.x) > 0.1:
 		facing = 1 if input_dir.x > 0.0 else -1
+	if input_dir != Vector2.ZERO:
+		last_move_dir = input_dir.normalized()
 
 	jump_buffer_timer = maxf(jump_buffer_timer - delta, 0.0)
 	dash_buffer_timer = maxf(dash_buffer_timer - delta, 0.0)
@@ -129,6 +146,7 @@ func _physics_process(delta: float) -> void:
 	dash_recharge_timer = maxf(dash_recharge_timer - delta, 0.0)
 	climb_lockout_timer = maxf(climb_lockout_timer - delta, 0.0)
 	spring_gravity_timer = maxf(spring_gravity_timer - delta, 0.0)
+	grab_cooldown_timer = maxf(grab_cooldown_timer - delta, 0.0)
 
 	if is_trapped:
 		run_trapped(delta)
@@ -137,6 +155,14 @@ func _physics_process(delta: float) -> void:
 
 	if is_in_water:
 		run_water(delta)
+		move_and_slide()
+		update_stamina(delta)
+		update_stamina_bar()
+		return
+
+	update_rail_state(delta)
+	if is_grinding:
+		run_grind(delta)
 		move_and_slide()
 		update_stamina(delta)
 		update_stamina_bar()
@@ -243,11 +269,14 @@ func start_water_dash() -> void:
 
 	var dir := input_dir
 	if dir == Vector2.ZERO:
-		dir = Vector2(facing, 0.0)
+		if last_move_dir != Vector2.ZERO:
+			dir = last_move_dir
+		else:
+			dir = Vector2.UP
 
 	dash_dir = dir.normalized()
 	if dash_dir == Vector2.ZERO:
-		dash_dir = Vector2(facing, 0.0)
+		dash_dir = Vector2.UP
 
 	dash_timer = dash_time * 0.8
 	dash_elapsed = 0.0
@@ -288,6 +317,15 @@ func exit_water() -> void:
 
 func update_stamina(delta: float) -> void:
 	if is_in_water or is_trapped:
+		return
+	if is_grinding:
+		var has_input := absf(input_dir.x) > 0.1 or absf(input_dir.y) > 0.1
+		if has_input:
+			current_stamina = maxf(current_stamina - stamina_grind_move_rate * delta, 0.0)
+		else:
+			current_stamina = maxf(current_stamina - stamina_grind_idle_rate * delta, 0.0)
+		if current_stamina <= 0.0:
+			release_rail()
 		return
 	if is_climbing:
 		var climb_y := input_dir.y
@@ -382,13 +420,16 @@ func start_dash() -> void:
 
 	var dir := input_dir
 	if dir == Vector2.ZERO:
-		dir = Vector2(facing, 0.0)
+		if last_move_dir != Vector2.ZERO:
+			dir = last_move_dir
+		else:
+			dir = Vector2.UP
 	if is_on_floor() and dir.y > 0.0:
 		dir.y = 0.0
 
 	dash_dir = dir.normalized()
 	if dash_dir == Vector2.ZERO:
-		dash_dir = Vector2(facing, 0.0)
+		dash_dir = Vector2.UP
 
 	if is_crouching and is_on_floor():
 		start_slide()
@@ -557,3 +598,96 @@ func apply_stand_visuals() -> void:
 	if color_rect:
 		color_rect.size = original_color_rect_size
 		color_rect.position = original_color_rect_position
+
+func update_rail_state(delta: float) -> void:
+	if is_grinding:
+		if jump_buffer_timer > 0.0:
+			release_rail()
+			grab_cooldown_timer = grab_cooldown_time
+			do_jump()
+			return
+		if not Input.is_action_pressed("grab") or current_stamina <= 0.0:
+			release_rail()
+			grab_cooldown_timer = grab_cooldown_time
+			return
+		return
+
+	if grab_cooldown_timer > 0.0:
+		return
+
+	if Input.is_action_pressed("grab") and current_stamina > 0.0 and not is_climbing and not is_in_water and not is_trapped:
+		var rails = get_tree().get_nodes_in_group("grind_rails")
+		var closest_rail: GrindRail = null
+		var closest_dist := INF
+		var closest_t := 0.0
+		for rail in rails:
+			var data: Dictionary = rail.get_closest_point_and_t(global_position)
+			if data["distance"] < rail.detection_radius and data["distance"] < closest_dist:
+				closest_dist = data["distance"]
+				closest_rail = rail
+				closest_t = data["t"]
+		if closest_rail:
+			grab_t = closest_t
+			grab_rail(closest_rail)
+
+func grab_rail(rail: GrindRail) -> void:
+	is_grinding = true
+	current_rail = rail
+	current_grind_speed = 0.0
+	reset_climb_state()
+	if is_sliding:
+		end_slide()
+	if is_crouching:
+		is_crouching = false
+		apply_stand_visuals()
+	dash_timer = 0.0
+	coyote_timer = 0.0
+	rail.set_grabbed(grab_t, global_position)
+	target_grind_pos = rail.get_point_at_t(grab_t)
+	velocity = Vector2.ZERO
+
+func release_rail() -> void:
+	is_grinding = false
+	current_grind_speed = 0.0
+	if current_rail:
+		current_rail.release_grab()
+	current_rail = null
+
+func run_grind(delta: float) -> void:
+	if not current_rail:
+		is_grinding = false
+		return
+
+	var tangent = current_rail.get_tangent_at(grab_t)
+	
+	var move_input := input_dir.x
+	if move_input == 0.0:
+		move_input = input_dir.y * -signf(tangent.y)
+	
+	var target_speed := move_input * grind_speed
+	
+	if grab_t <= 0.001 and target_speed < 0.0:
+		target_speed = 0.0
+		current_grind_speed = 0.0
+	elif grab_t >= 0.999 and target_speed > 0.0:
+		target_speed = 0.0
+		current_grind_speed = 0.0
+	
+	var moved := absf(move_input) > 0.01 and absf(target_speed) > 0.01
+	
+	current_grind_speed = move_toward(current_grind_speed, target_speed, grind_accel * delta)
+	
+	if absf(current_grind_speed) > 0.001:
+		var new_t = grab_t + current_grind_speed * delta
+		if new_t >= 0.0 and new_t <= 1.0:
+			grab_t = new_t
+			moved = true
+		else:
+			current_grind_speed = 0.0
+	
+	target_grind_pos = current_rail.get_point_at_t(grab_t)
+	global_position = global_position.move_toward(target_grind_pos, grind_snap_speed * delta)
+	
+	current_rail.apply_grab_pull(global_position, grab_t, 0.12, moved)
+	
+	velocity = Vector2.ZERO

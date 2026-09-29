@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://cklwgukplr7lo"]
+
+[ext_resource type="Script" uid="uid://c0a85r6r3pkmh" path="res://scripts/room.gd" id="1_jep2r"]
+[ext_resource type="Script" uid="uid://cujjbxcl06yqe" path="res://scripts/roomConection.gd" id="2_flumy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_flumy"]
+size = Vector2(38, 38)
+
+[node name="room2" type="Node2D" unique_id=431612343]
+script = ExtResource("1_jep2r")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=425635555]
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.0666666, 0, 1, 1)
+
+[node name="Start" type="Node2D" parent="." unique_id=1557609204]
+position = Vector2(0, 20)
+script = ExtResource("2_flumy")
+direction = 3
+
+[node name="End" type="Node2D" parent="." unique_id=560374736]
+position = Vector2(20, 0)
+script = ExtResource("2_flumy")
+direction = 0
+
+[node name="Bounds" type="Area2D" parent="." unique_id=1479353294]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds" unique_id=357112003]
+position = Vector2(20, 20)
+shape = SubResource("RectangleShape2D_flumy")

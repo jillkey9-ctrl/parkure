@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://c3oplrupugu5h"]
+
+[ext_resource type="Script" uid="uid://ca6a4y8mljtl5" path="res://scripts/spectatorCamera.gd" id="1_kihgr"]
+[ext_resource type="Script" uid="uid://c73q2cj7tnmld" path="res://scripts/generatorMap.gd" id="2_lbdnk"]
+[ext_resource type="Script" uid="uid://sdbs05ysadr" path="res://resurces/location.gd" id="3_x41kc"]
+[ext_resource type="PackedScene" uid="uid://b0kmp1nx4dnpm" path="res://scenes/roomsTestLocation/room_3.tscn" id="4_rw8da"]
+[ext_resource type="PackedScene" uid="uid://8sl8bpvrov62" path="res://scenes/roomsTestLocation/room_1.tscn" id="5_5n41p"]
+[ext_resource type="PackedScene" uid="uid://cklwgukplr7lo" path="res://scenes/roomsTestLocation/room_2.tscn" id="6_0o1xk"]
+[ext_resource type="PackedScene" uid="uid://cm03d8jcu3f5h" path="res://scenes/roomsTestLocation/room_4.tscn" id="7_5n41p"]
+[ext_resource type="PackedScene" uid="uid://bjhgkab2mcywy" path="res://scenes/roomsTestLocation/room_5.tscn" id="8_0o1xk"]
+[ext_resource type="PackedScene" uid="uid://7p52wds3ahu8" path="res://scenes/roomsTestLocation/room_6.tscn" id="9_semme"]
+
+[sub_resource type="Resource" id="Resource_qljxh"]
+script = ExtResource("3_x41kc")
+min_rooms = 500
+max_rooms = 900
+starting_room = ExtResource("5_5n41p")
+ending_room = ExtResource("4_rw8da")
+rooms = Array[PackedScene]([ExtResource("5_5n41p"), ExtResource("6_0o1xk"), ExtResource("4_rw8da"), ExtResource("7_5n41p"), ExtResource("8_0o1xk"), ExtResource("9_semme")])
+metadata/_custom_type_script = "uid://sdbs05ysadr"
+
+[node name="generationMapTest" type="Node2D" unique_id=1672256634]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=948251061]
+script = ExtResource("1_kihgr")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=888857321]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="generatorMap" type="Node2D" parent="." unique_id=1043210297]
+script = ExtResource("2_lbdnk")
+locations = Array[ExtResource("3_x41kc")]([SubResource("Resource_qljxh")])
+cell_size = Vector2(10000000000, 100000000000)
