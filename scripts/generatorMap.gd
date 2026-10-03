@@ -19,16 +19,28 @@ func _build_location_chain() -> void:
 	if locations.is_empty():
 		return
 
-	var sorted_locations: Array[Location] = locations.duplicate()
-	sorted_locations.sort_custom(func(a: Location, b: Location) -> bool: return a.level < b.level)
+	var levels_map: Dictionary = {}
+	for loc: Location in locations:
+		if not levels_map.has(loc.level):
+			levels_map[loc.level] = []
+		levels_map[loc.level].append(loc)
+
+	var sorted_levels: Array = levels_map.keys()
+	sorted_levels.sort()
 
 	var picked: Array[Location] = []
-	if sorted_locations.size() == 1:
-		picked.append(sorted_locations[0])
-	else:
-		var count: int = mini(max_locations_to_pick, sorted_locations.size())
-		for i in count:
-			picked.append(sorted_locations[i])
+	
+	for level in sorted_levels:
+		var level_locations: Array = levels_map[level]
+		level_locations.shuffle()
+		
+		for loc: Location in level_locations:
+			picked.append(loc)
+			if picked.size() >= max_locations_to_pick:
+				break
+				
+		if picked.size() >= max_locations_to_pick:
+			break
 
 	placed_rooms.clear()
 	path_stack.clear()

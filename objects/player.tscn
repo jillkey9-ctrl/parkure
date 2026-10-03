@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://cv8rhtwsnhuip"]
+
+[ext_resource type="Script" uid="uid://55lac2756b0u" path="res://scripts/player.gd" id="1_eqqp1"]
+[ext_resource type="Texture2D" uid="uid://bfx05jbw6ndkp" path="res://sprites/objects/player/playerIdle.png" id="2_3rerk"]
+[ext_resource type="Texture2D" uid="uid://bixq4rt35spd" path="res://sprites/objects/player/playerjump.png" id="2_i825w"]
+[ext_resource type="Texture2D" uid="uid://deqtjp8xe2d6m" path="res://sprites/objects/player/playerWalk1.png" id="3_i825w"]
+[ext_resource type="Texture2D" uid="uid://dt5sq40sjmmiq" path="res://sprites/objects/player/playerWalk2.png" id="4_3rfka"]
+[ext_resource type="Texture2D" uid="uid://hswonawlr0c" path="res://sprites/objects/player/playerWalk3.png" id="5_i8sra"]
+[ext_resource type="Texture2D" uid="uid://bax4brhmlsa62" path="res://sprites/objects/player/playerWalk4.png" id="6_4vq5b"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_qljxh"]
+radius = 15.033297
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_51f6n"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_i825w")
+}],
+"loop": 1,
+"name": &"fall",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_3rerk")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_i825w")
+}],
+"loop": 1,
+"name": &"jump",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_i825w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_3rfka")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_i8sra")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_4vq5b")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 9.0
+}]
+
+[node name="player" type="CharacterBody2D" unique_id=2104594944]
+script = ExtResource("1_eqqp1")
+stamina_color = Color(0.54509807, 1, 0.23921569, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=435710884]
+position = Vector2(-2, 4)
+shape = SubResource("CircleShape2D_qljxh")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1875584935]
+visible = false
+offset_left = -20.0
+offset_top = -21.0
+offset_right = 20.0
+offset_bottom = 19.0
+color = Color(0.9264051, 0, 0.0077908286, 1)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1877014355]
+position = Vector2(-1, 13)
+sprite_frames = SubResource("SpriteFrames_51f6n")
+animation = &"fall"
+offset = Vector2(3.8, -23.5)

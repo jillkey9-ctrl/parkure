@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cph30m362fxvx"]
 
-[ext_resource type="Script" uid="uid://55lac2756b0u" path="res://scripts/player.gd" id="1_wtcfe"]
+[ext_resource type="PackedScene" uid="uid://cv8rhtwsnhuip" path="res://objects/player.tscn" id="1_ob1gf"]
 [ext_resource type="Script" uid="uid://bvy5s0cd0os3k" path="res://button.gd" id="2_0e48y"]
 [ext_resource type="Script" uid="uid://8ks57yqm4n8e" path="res://scripts/camera.gd" id="3_0hol4"]
 [ext_resource type="Script" uid="uid://c56ucgl1mqknu" path="res://scripts/SpringPad.gd" id="3_epypp"]
@@ -18,9 +18,6 @@ b = Vector2(4000, 1)
 [sub_resource type="SegmentShape2D" id="SegmentShape2D_ob1gf"]
 a = Vector2(-500, 1)
 b = Vector2(4000, 1)
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_qljxh"]
-radius = 20.09975
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
 size = Vector2(40, 39)
@@ -70,21 +67,8 @@ offset_bottom = 40.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4" unique_id=155781210]
 shape = SubResource("SegmentShape2D_ob1gf")
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1452798082 node_paths=PackedStringArray("stamina_bar")]
+[node name="player" parent="." unique_id=2104594944 instance=ExtResource("1_ob1gf")]
 position = Vector2(45, -70)
-script = ExtResource("1_wtcfe")
-stamina_bar = NodePath("../CanvasLayer/ColorRect")
-stamina_color = Color(0.54509807, 1, 0.23921569, 1)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=1376661818]
-shape = SubResource("CircleShape2D_qljxh")
-
-[node name="ColorRect" type="ColorRect" parent="CharacterBody2D" unique_id=1895881988]
-offset_left = -20.0
-offset_top = -21.0
-offset_right = 20.0
-offset_bottom = 19.0
-color = Color(0.9264051, 0, 0.0077908286, 1)
 
 [node name="Button" type="Button" parent="." unique_id=1958992385]
 offset_left = 421.0
@@ -96,7 +80,7 @@ script = ExtResource("2_0e48y")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1098029224 node_paths=PackedStringArray("target")]
 script = ExtResource("3_0hol4")
-target = NodePath("../CharacterBody2D")
+target = NodePath("../player")
 
 [node name="prujina2" type="Area2D" parent="." unique_id=659878950 node_paths=PackedStringArray("direction_ray")]
 position = Vector2(47, -196)

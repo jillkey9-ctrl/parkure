@@ -28,3 +28,9 @@ script = ExtResource("2_cnfcb")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds" unique_id=617203633]
 position = Vector2(20, 20)
 shape = SubResource("RectangleShape2D_qljxh")
+
+[node name="Label" type="Label" parent="." unique_id=525377354]
+z_index = 2
+offset_right = 40.0
+offset_bottom = 23.0
+text = "локация1"

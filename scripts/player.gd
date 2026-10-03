@@ -1,6 +1,8 @@
 class_name Player
 extends CharacterBody2D
 
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+
 @export var stamina_bar: ColorRect
 @export var stamina_color: Color = Color.WHITE
 @export var stamina_no_dash_color: Color = Color.CYAN
@@ -62,6 +64,7 @@ var grind_snap_speed := 600.0
 
 var input_dir := Vector2.ZERO
 var facing := 1
+var previous_facing := 1
 var coyote_timer := 0.0
 var jump_buffer_timer := 0.0
 var dash_buffer_timer := 0.0
@@ -103,6 +106,20 @@ var grab_cooldown_timer := 0.0
 var grab_cooldown_time := 0.6
 var last_move_dir := Vector2.ZERO
 
+var turn_squash_timer := 0.0
+var turn_squash_duration := 0.15
+var turn_squash_amount := 0.6
+var fall_time := 0.0
+var max_fall_squash := 0.4
+var fall_squash_rate := 2.5
+var current_fall_squash := 0.0
+var fall_squash_velocity := 0.0
+var fall_squash_target := 0.0
+var jump_stretch_amount := 0.25
+var current_jump_stretch := 0.0
+var air_rotation_amount := 0.15
+var current_air_rotation := 0.0
+
 func _ready() -> void:
 	dashes_remaining = max_air_dashes
 	current_stamina = max_stamina
@@ -136,7 +153,10 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	input_dir = get_input_direction()
 	if absf(input_dir.x) > 0.1:
+		previous_facing = facing
 		facing = 1 if input_dir.x > 0.0 else -1
+		if facing != previous_facing:
+			turn_squash_timer = turn_squash_duration
 	if input_dir != Vector2.ZERO:
 		last_move_dir = input_dir.normalized()
 
@@ -151,6 +171,7 @@ func _physics_process(delta: float) -> void:
 	if is_trapped:
 		run_trapped(delta)
 		move_and_slide()
+		update_animations()
 		return
 
 	if is_in_water:
@@ -158,6 +179,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		update_stamina(delta)
 		update_stamina_bar()
+		update_animations()
 		return
 
 	update_rail_state(delta)
@@ -166,6 +188,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		update_stamina(delta)
 		update_stamina_bar()
+		update_animations()
 		return
 
 	update_crouch_state()
@@ -212,6 +235,92 @@ func _physics_process(delta: float) -> void:
 
 	update_stamina(delta)
 	update_stamina_bar()
+	update_animations()
+
+func update_animations() -> void:
+	if not animated_sprite:
+		return
+
+	animated_sprite.flip_h = facing == 1
+
+	var current_anim := "idle"
+
+	if is_on_floor() and not is_sliding and not is_crouching and not is_climbing and not is_grinding and not is_in_water and not is_trapped and dash_timer <= 0.0:
+		if absf(velocity.x) > 10.0 or absf(input_dir.x) > 0.1:
+			current_anim = "walk"
+	else:
+		var in_air := not is_on_floor() and not is_climbing and not is_grinding and not is_in_water and not is_trapped and dash_timer <= 0.0
+		
+		if in_air:
+			if velocity.y < 0.0:
+				current_anim = "jump"
+			else:
+				current_anim = "fall"
+
+	if animated_sprite.animation != current_anim:
+		animated_sprite.play(current_anim)
+
+	var target_x := 1.0
+	var target_y := 1.0
+	var target_rotation := 0.0
+
+	if turn_squash_timer > 0.0:
+		turn_squash_timer -= get_physics_process_delta_time()
+		var squash_progress = 1.0 - (turn_squash_timer / turn_squash_duration)
+		target_x = 1.0 - (turn_squash_amount * (1.0 - squash_progress))
+
+	var is_falling := not is_on_floor() and velocity.y > 50.0 and not is_climbing and not is_grinding and not is_in_water and not is_trapped
+	
+	if is_falling:
+		fall_time += get_physics_process_delta_time()
+		fall_squash_target = minf(fall_time * fall_squash_rate, max_fall_squash)
+	else:
+		fall_time = 0.0
+		fall_squash_target = 0.0
+
+	var spring_stiffness := 180.0
+	var spring_damping := 12.0
+	var delta_time := get_physics_process_delta_time()
+	
+	var spring_force := (fall_squash_target - current_fall_squash) * spring_stiffness
+	var damping_force := -fall_squash_velocity * spring_damping
+	fall_squash_velocity += (spring_force + damping_force) * delta_time
+	current_fall_squash += fall_squash_velocity * delta_time
+
+	target_y = 1.0 - current_fall_squash
+
+	var in_air := not is_on_floor() and not is_climbing and not is_grinding and not is_in_water and not is_trapped and dash_timer <= 0.0
+	
+	if in_air:
+		if velocity.y < 0.0:
+			var stretch_factor = absf(velocity.y) / absf(jump_velocity)
+			stretch_factor = minf(stretch_factor, 1.5)
+			var jump_stretch_target = jump_stretch_amount * stretch_factor
+			current_jump_stretch = lerp(current_jump_stretch, jump_stretch_target, 8.0 * delta_time)
+			
+			if absf(input_dir.x) > 0.1:
+				var tilt_target = -input_dir.x * air_rotation_amount * 0.5
+				current_air_rotation = lerp(current_air_rotation, tilt_target, 6.0 * delta_time)
+			else:
+				current_air_rotation = lerp(current_air_rotation, 0.0, 8.0 * delta_time)
+		else:
+			current_jump_stretch = lerp(current_jump_stretch, 0.0, 10.0 * delta_time)
+			
+			if absf(velocity.x) > 50.0:
+				var rotation_target = velocity.x / max_fall_speed * air_rotation_amount
+				rotation_target = clampf(rotation_target, -air_rotation_amount, air_rotation_amount)
+				current_air_rotation = lerp(current_air_rotation, rotation_target, 5.0 * delta_time)
+			else:
+				current_air_rotation = lerp(current_air_rotation, 0.0, 8.0 * delta_time)
+	else:
+		current_jump_stretch = lerp(current_jump_stretch, 0.0, 12.0 * delta_time)
+		current_air_rotation = lerp(current_air_rotation, 0.0, 12.0 * delta_time)
+
+	target_y += current_jump_stretch
+	target_rotation = current_air_rotation
+
+	animated_sprite.scale = Vector2(target_x, target_y)
+	animated_sprite.rotation = target_rotation
 
 func run_trapped(delta: float) -> void:
 	if dash_buffer_timer > 0.0 and dashes_remaining > 0:
@@ -388,7 +497,7 @@ func update_climb_state(delta: float) -> void:
 		return
 
 	var holding_grab := Input.is_action_pressed("grab")
-	var is_sliding := touch_wall_side != 0 and velocity.y > wall_slide_speed
+	var is_sliding_wall := touch_wall_side != 0 and velocity.y > wall_slide_speed
 
 	if is_climbing:
 		if not holding_grab:
@@ -404,7 +513,7 @@ func update_climb_state(delta: float) -> void:
 				reset_climb_state()
 		return
 
-	if (holding_grab or is_sliding) and touch_wall_side != 0 and climb_lockout_timer <= 0.0:
+	if (holding_grab or is_sliding_wall) and touch_wall_side != 0 and climb_lockout_timer <= 0.0:
 		is_climbing = true
 		climb_wall_side = touch_wall_side
 		climb_lost_timer = climb_contact_grace
