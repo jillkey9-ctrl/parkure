@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://55lac2756b0u" path="res://scripts/player.gd" id="1_eqqp1"]
 [ext_resource type="Texture2D" uid="uid://bfx05jbw6ndkp" path="res://sprites/objects/player/playerIdle.png" id="2_3rerk"]
 [ext_resource type="Texture2D" uid="uid://bixq4rt35spd" path="res://sprites/objects/player/playerjump.png" id="2_i825w"]
+[ext_resource type="Texture2D" uid="uid://c2i28l2i3xsp2" path="res://sprites/objects/player/playerGrab.png" id="3_3rfka"]
 [ext_resource type="Texture2D" uid="uid://deqtjp8xe2d6m" path="res://sprites/objects/player/playerWalk1.png" id="3_i825w"]
 [ext_resource type="Texture2D" uid="uid://dt5sq40sjmmiq" path="res://sprites/objects/player/playerWalk2.png" id="4_3rfka"]
 [ext_resource type="Texture2D" uid="uid://hswonawlr0c" path="res://sprites/objects/player/playerWalk3.png" id="5_i8sra"]
@@ -23,6 +24,14 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": ExtResource("3_3rfka")
+}],
+"loop": 1,
+"name": &"grind",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": ExtResource("2_3rerk")
 }],
 "loop": 1,
@@ -39,9 +48,6 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("3_i825w")
-}, {
-"duration": 1.0,
 "texture": ExtResource("4_3rfka")
 }, {
 "duration": 1.0,
@@ -49,6 +55,9 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("6_4vq5b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_i825w")
 }],
 "loop": 1,
 "name": &"walk",
@@ -74,5 +83,5 @@ color = Color(0.9264051, 0, 0.0077908286, 1)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1877014355]
 position = Vector2(-1, 13)
 sprite_frames = SubResource("SpriteFrames_51f6n")
-animation = &"fall"
+animation = &"grind"
 offset = Vector2(3.8, -23.5)

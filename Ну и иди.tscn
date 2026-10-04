@@ -1,3 +1,65 @@
 [gd_scene format=3 uid="uid://br5rd5o2yvpe4"]
 
-[node name="Node2D" type="Node2D" unique_id=1698518503]
+[ext_resource type="Script" uid="uid://qkhqvongsro7" path="res://scripts/game_manager.gd" id="1_x44b1"]
+[ext_resource type="PackedScene" uid="uid://cv8rhtwsnhuip" path="res://objects/player.tscn" id="2_aq70e"]
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_38di8"]
+a = Vector2(-500, 1)
+b = Vector2(4000, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
+size = Vector2(60, 68)
+
+[node name="testStartAndFinish" type="Node2D" unique_id=1698518503]
+
+[node name="gameManager" type="Node2D" parent="." unique_id=1332260617 node_paths=PackedStringArray("spawn_points", "finish_area", "time_label", "progress_bar")]
+script = ExtResource("1_x44b1")
+player_scene = ExtResource("2_aq70e")
+spawn_points = [NodePath("../spawn")]
+finish_area = NodePath("../finish")
+time_label = NodePath("../CanvasLayer/Label")
+progress_bar = NodePath("../CanvasLayer/ColorRect")
+
+[node name="StaticBody2D4" type="StaticBody2D" parent="." unique_id=1430167428]
+position = Vector2(295, 0)
+
+[node name="ColorRect" type="ColorRect" parent="StaticBody2D4" unique_id=432540131]
+offset_left = -370.0
+offset_right = 3110.0
+offset_bottom = 40.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4" unique_id=356919350]
+shape = SubResource("SegmentShape2D_38di8")
+
+[node name="spawn" type="Node2D" parent="." unique_id=2006362436]
+position = Vector2(67, -162)
+
+[node name="finish" type="Area2D" parent="." unique_id=459310205]
+position = Vector2(512, -45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="finish" unique_id=486932356]
+position = Vector2(20, 24)
+shape = SubResource("RectangleShape2D_qljxh")
+
+[node name="ColorRect" type="ColorRect" parent="finish" unique_id=2123756801]
+offset_left = -9.0
+offset_top = -11.0
+offset_right = 51.0
+offset_bottom = 59.0
+color = Color(1, 0, 0, 0.42745098)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=481204154]
+
+[node name="Label" type="Label" parent="CanvasLayer" unique_id=2014821783]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=2017552189]
+offset_left = 2.0
+offset_top = 50.0
+offset_right = 419.0
+offset_bottom = 90.0
+color = Color(1, 0, 0, 1)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=148244660]
+position = Vector2(438, -217)
