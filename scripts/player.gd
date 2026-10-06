@@ -22,8 +22,8 @@ var max_fall_speed := 900.0
 var coyote_time := 0.1
 var jump_buffer_time := 0.15
 var jump_cut_multiplier := 0.5
-var dash_speed := 1100.0
-var dash_time := 0.18
+var dash_speed := 1350.0
+var dash_time := 0.14
 var dash_cooldown := 0.06
 var dash_buffer_time := 0.15
 var max_air_dashes := 1
@@ -53,12 +53,17 @@ var spring_gravity_duration := 0.35
 var grab_slide_speed := 0.0
 var swim_force := 1800.0
 
-var water_swim_speed := 170.0
-var water_swim_accel := 600.0
-var water_swim_drag := 350.0
-var water_dash_speed := 300.0
-var water_dash_drag := 300.0
-var water_gravity := 200.0
+var water_swim_speed := 250.0
+var water_swim_accel := 1200.0
+var water_swim_drag := 200.0
+var water_dash_speed := 1150.0
+var water_dash_drag := 1000.0
+var water_gravity := 400.0
+var water_dash_duration := 0.18
+var water_dash_recharge := 1.2
+var water_stamina_drain_rate := 8.0
+var water_buoyancy := 200.0
+var water_max_speed := 1600.0
 
 var grind_speed := 0.12
 var grind_accel := 6.0
@@ -127,6 +132,8 @@ var current_air_rotation := 0.0
 var crouch_squash_y := 0.3
 var crouch_squash_x := 0.15
 var current_crouch_squash := 0.0
+var dash_stretch_amount := 0.35
+var current_dash_stretch := 0.0
 
 func _ready() -> void:
 	dashes_remaining = max_air_dashes
@@ -176,67 +183,49 @@ func _physics_process(delta: float) -> void:
 
 	if is_trapped:
 		run_trapped(delta)
-		move_and_slide()
-		update_stamina(delta)
-		update_stamina_bar()
-		update_animations()
-		return
-
-	if is_in_water:
+	elif is_in_water:
 		run_water(delta)
-		move_and_slide()
-		update_stamina(delta)
-		update_stamina_bar()
-		update_animations()
-		return
-
-	update_rail_state(delta)
-	if is_grinding:
-		run_grind(delta)
-		move_and_slide()
-		update_stamina(delta)
-		update_stamina_bar()
-		update_animations()
-		return
-
-	update_crouch_state()
-
-	if is_climbing and current_stamina <= 0.0:
-		reset_climb_state()
-
-	update_wall_contact()
-	update_climb_state(delta)
-
-	if is_on_floor():
-		coyote_timer = coyote_time
-		dashes_remaining = max_air_dashes
-	elif dash_timer <= 0.0 and not is_climbing:
-		coyote_timer = maxf(coyote_timer - delta, 0.0)
-
-	if dash_buffer_timer > 0.0 and dash_recharge_timer <= 0.0 and dashes_remaining > 0:
-		start_dash()
-
-	var can_wall_jump := touch_wall_side != 0 and not is_on_floor()
-	var can_jump := jump_buffer_timer > 0.0 and (is_on_floor() or coyote_timer > 0.0 or is_climbing or can_wall_jump)
-	var can_interrupt_dash := dash_timer <= 0.0 or dash_elapsed > 0.06
-	if can_jump and can_interrupt_dash and not is_sliding:
-		do_jump()
-
-	if is_sliding:
-		run_slide(delta)
-	elif dash_timer > 0.0:
-		run_dash(delta)
-	elif is_climbing:
-		run_climb(delta)
 	else:
-		run_normal(delta)
+		update_rail_state(delta)
+		if not is_grinding:
+			update_crouch_state()
+			if is_climbing and current_stamina <= 0.0:
+				reset_climb_state()
+			update_wall_contact()
+			update_climb_state(delta)
+			if is_on_floor():
+				coyote_timer = coyote_time
+				dashes_remaining = max_air_dashes
+			elif dash_timer <= 0.0 and not is_climbing:
+				coyote_timer = maxf(coyote_timer - delta, 0.0)
+			if dash_buffer_timer > 0.0 and dash_recharge_timer <= 0.0 and dashes_remaining > 0:
+				start_dash()
+			var can_wall_jump := touch_wall_side != 0 and not is_on_floor()
+			var can_jump := jump_buffer_timer > 0.0 and (is_on_floor() or coyote_timer > 0.0 or is_climbing or can_wall_jump)
+			var can_interrupt_dash := dash_timer <= 0.0 or dash_elapsed > 0.06
+			if can_jump and can_interrupt_dash and not is_sliding:
+				do_jump()
+
+		if is_grinding:
+			run_grind(delta)
+		elif is_sliding:
+			run_slide(delta)
+		elif dash_timer > 0.0:
+			run_dash(delta)
+		elif is_climbing:
+			run_climb(delta)
+		else:
+			run_normal(delta)
 
 	if climbing_platform:
 		velocity += climbing_platform.get_platform_velocity()
 
+	if is_in_water and velocity.length() > water_max_speed:
+		velocity = velocity.normalized() * water_max_speed
+
 	move_and_slide()
 
-	if is_on_floor():
+	if is_on_floor() and not is_in_water:
 		dashes_remaining = max_air_dashes
 		coyote_timer = coyote_time
 		spring_gravity_timer = 0.0
@@ -336,6 +325,17 @@ func update_animations() -> void:
 		current_jump_stretch = lerp(current_jump_stretch, 0.0, 12.0 * delta_time)
 		current_air_rotation = lerp(current_air_rotation, 0.0, 12.0 * delta_time)
 
+	if dash_timer > 0.0:
+		var dash_progress = dash_elapsed / (water_dash_duration if is_in_water else dash_time)
+		var stretch_target = dash_stretch_amount * (1.0 - dash_progress)
+		current_dash_stretch = lerp(current_dash_stretch, stretch_target, 15.0 * delta_time)
+	else:
+		current_dash_stretch = lerp(current_dash_stretch, 0.0, 12.0 * delta_time)
+
+	if current_dash_stretch > 0.01:
+		target_x *= 1.0 + current_dash_stretch
+		target_y *= 1.0 - current_dash_stretch * 0.5
+
 	if is_crouching:
 		current_crouch_squash = lerp(current_crouch_squash, 1.0, 10.0 * delta_time)
 	else:
@@ -383,7 +383,7 @@ func exit_trap() -> void:
 	is_trapped = false
 
 func run_water(delta: float) -> void:
-	if dash_buffer_timer > 0.0 and dash_cooldown_timer <= 0.0:
+	if dash_buffer_timer > 0.0 and dash_cooldown_timer <= 0.0 and dash_recharge_timer <= 0.0 and current_stamina > 5.0:
 		start_water_dash()
 
 	if dash_timer > 0.0:
@@ -394,49 +394,58 @@ func run_water(delta: float) -> void:
 			velocity = velocity.move_toward(Vector2.ZERO, water_swim_drag * delta)
 		else:
 			velocity = velocity.move_toward(target_vel, water_swim_accel * delta)
-		
-		if velocity.length() > 0.1:
-			velocity.y += water_gravity * delta
+
+		var gravity_mult := 1.0
+		if velocity.y < 0.0:
+			gravity_mult = 1.6
+		elif input_dir.y < 0.0:
+			gravity_mult = 1.3
+		velocity.y += water_gravity * gravity_mult * delta
+
+		if velocity.y > 0.0 and input_dir.y >= 0.0:
+			velocity.y = move_toward(velocity.y, water_buoyancy, water_gravity * 0.5 * delta)
+
+		velocity.y = minf(velocity.y, max_fall_speed * 0.5)
 
 func start_water_dash() -> void:
 	dash_buffer_timer = 0.0
 	dash_cooldown_timer = dash_cooldown
+	dash_recharge_timer = water_dash_recharge
+	current_stamina = maxf(current_stamina - 10.0, 0.0)
 
 	var dir := input_dir
 	if dir == Vector2.ZERO:
-		dir = last_move_dir if last_move_dir != Vector2.ZERO else Vector2.UP
+		dir = last_move_dir if last_move_dir != Vector2.ZERO else Vector2.RIGHT * facing
 
 	dash_dir = dir.normalized()
 	if dash_dir == Vector2.ZERO:
-		dash_dir = Vector2.UP
+		dash_dir = Vector2.RIGHT * facing
 
-	dash_timer = dash_time * 0.8
+	dash_timer = water_dash_duration
 	dash_elapsed = 0.0
 	velocity = dash_dir * water_dash_speed
 
 func run_water_dash(delta: float) -> void:
 	dash_elapsed += delta
 	dash_timer -= delta
-	
-	var progress = dash_elapsed / (dash_time * 0.8)
+	var progress = dash_elapsed / water_dash_duration
 	var speed_multiplier = 1.0
-	if progress > 0.2:
-		var brake_progress = (progress - 0.2) / 0.8
-		speed_multiplier = 1.0 - (brake_progress * brake_progress * 0.9)
-	
+	if progress > 0.7:
+		var brake_progress = (progress - 0.7) / 0.3
+		speed_multiplier = 1.0 - brake_progress * 0.6
 	var target_vel = dash_dir * (water_dash_speed * speed_multiplier)
 	velocity = velocity.move_toward(target_vel, water_dash_drag * delta)
-	
 	if dash_timer <= 0.0:
 		dash_timer = 0.0
 
 func enter_water() -> void:
 	is_in_water = true
 	if dash_timer > 0.0:
-		dash_timer *= 0.5
-		dash_dir = velocity.normalized()
-		if dash_dir == Vector2.ZERO:
-			dash_dir = Vector2(facing, 0.0)
+		if velocity.length() > water_dash_speed:
+			velocity = velocity.normalized() * water_dash_speed
+	else:
+		if velocity.length() > water_swim_speed:
+			velocity = velocity.normalized() * water_swim_speed
 	reset_climb_state()
 	if is_sliding:
 		end_slide()
@@ -448,7 +457,13 @@ func exit_water() -> void:
 	is_in_water = false
 
 func update_stamina(delta: float) -> void:
-	if is_in_water or is_trapped:
+	if is_trapped:
+		return
+	if is_in_water:
+		if dash_timer > 0.0:
+			current_stamina = maxf(current_stamina - water_stamina_drain_rate * 2.0 * delta, 0.0)
+		else:
+			current_stamina = maxf(current_stamina - water_stamina_drain_rate * delta, 0.0)
 		return
 	if is_grinding:
 		var has_input := absf(input_dir.x) > 0.1 or absf(input_dir.y) > 0.1
@@ -509,10 +524,8 @@ func update_climb_state(delta: float) -> void:
 	if current_stamina <= 0.0 or is_on_floor() or is_on_ceiling() or dash_timer > 0.0:
 		reset_climb_state()
 		return
-
 	var holding_grab := Input.is_action_pressed("grab")
 	var is_sliding_wall := touch_wall_side != 0 and velocity.y > wall_slide_speed
-
 	if is_climbing:
 		if not holding_grab:
 			reset_climb_state()
@@ -526,7 +539,6 @@ func update_climb_state(delta: float) -> void:
 			if climb_lost_timer <= 0.0:
 				reset_climb_state()
 		return
-
 	if (holding_grab or is_sliding_wall) and touch_wall_side != 0 and climb_lockout_timer <= 0.0:
 		is_climbing = true
 		climb_wall_side = touch_wall_side
@@ -540,17 +552,14 @@ func start_dash() -> void:
 	dash_cooldown_timer = dash_cooldown
 	dashes_remaining -= 1
 	reset_climb_state()
-
 	var dir := input_dir
 	if dir == Vector2.ZERO:
 		dir = last_move_dir if last_move_dir != Vector2.ZERO else Vector2.UP
 	if is_on_floor() and dir.y > 0.0:
 		dir.y = 0.0
-
 	dash_dir = dir.normalized()
 	if dash_dir == Vector2.ZERO:
 		dash_dir = Vector2.UP
-
 	if is_crouching and is_on_floor():
 		start_slide()
 	else:
@@ -571,9 +580,7 @@ func run_slide(delta: float) -> void:
 	if velocity.length() < slide_min_speed:
 		end_slide()
 		return
-	
-	var is_touching_surface = is_on_floor()
-	if is_touching_surface:
+	if is_on_floor():
 		var normal := get_floor_normal()
 		var slope_factor := 1.0 - absf(normal.y)
 		var slope_direction := Vector2(normal.x, 0.0).normalized()
@@ -597,7 +604,6 @@ func do_jump() -> void:
 	if is_crouching:
 		is_crouching = false
 		apply_stand_visuals()
-
 	var wall_side := climb_wall_side if is_climbing else touch_wall_side
 	if not is_on_floor() and wall_side != 0:
 		velocity.x = -wall_side * wall_jump_x_force
@@ -610,15 +616,12 @@ func do_jump() -> void:
 func run_dash(delta: float) -> void:
 	dash_elapsed += delta
 	dash_timer -= delta
-	
 	var progress = dash_elapsed / dash_time
 	var speed_multiplier = 1.0
-	if progress > 0.7:
-		var brake_progress = (progress - 0.7) / 0.3
-		speed_multiplier = 1.0 - (brake_progress * brake_progress * 0.5)
-	
+	if progress > 0.85:
+		var brake_progress = (progress - 0.85) / 0.15
+		speed_multiplier = 1.0 - brake_progress * 0.4
 	velocity = dash_dir * (dash_speed * speed_multiplier)
-
 	if is_on_floor() and dash_dir.y > 0.0:
 		dash_timer = 0.0
 		velocity.y = 0.0
@@ -635,9 +638,7 @@ func run_climb(delta: float) -> void:
 		target_y = climb_y * climb_down_speed
 	else:
 		target_y = grab_slide_speed
-
 	velocity.y = move_toward(velocity.y, target_y, climb_accel * delta)
-	
 	if climbing_platform:
 		var plat_vel = climbing_platform.get_platform_velocity()
 		velocity.x = (climb_wall_side * wall_stick_speed) + plat_vel.x
@@ -650,7 +651,6 @@ func run_normal(delta: float) -> void:
 	var accel := ground_accel if on_floor else air_accel
 	var friction := ground_friction if on_floor else air_friction
 	var current_speed := crouch_speed if is_crouching else run_speed
-
 	if on_floor:
 		var normal := get_floor_normal()
 		var slope_angle := rad_to_deg(atan2(normal.x, -normal.y))
@@ -670,10 +670,8 @@ func run_normal(delta: float) -> void:
 		if spring_gravity_timer > 0.0:
 			current_gravity *= spring_gravity_multiplier
 		velocity.y = minf(velocity.y + current_gravity * delta, max_fall_speed)
-
 	if touch_wall_side != 0 and velocity.y > 0.0 and not is_climbing:
 		velocity.y = move_toward(velocity.y, 100.0, wall_slide_accel * delta)
-
 	if input_dir.x != 0.0:
 		var target_x := input_dir.x * current_speed
 		var accel_value := 1200.0 if (absf(velocity.x) > current_speed and velocity.x * input_dir.x > 0.0) else accel
@@ -702,7 +700,6 @@ func apply_spring_bounce(bounce_velocity: Vector2) -> void:
 func apply_crouch_visuals() -> void:
 	if collision_shape and collision_shape.shape is RectangleShape2D:
 		collision_shape.shape.extents = crouch_collision_extents
-	
 	if color_rect:
 		color_rect.size = crouch_color_rect_size
 		color_rect.position = crouch_color_rect_position
@@ -710,7 +707,6 @@ func apply_crouch_visuals() -> void:
 func apply_stand_visuals() -> void:
 	if collision_shape and collision_shape.shape is RectangleShape2D:
 		collision_shape.shape.extents = original_collision_extents
-	
 	if color_rect:
 		color_rect.size = original_color_rect_size
 		color_rect.position = original_color_rect_position
@@ -727,10 +723,8 @@ func update_rail_state(delta: float) -> void:
 			grab_cooldown_timer = grab_cooldown_time
 			return
 		return
-
 	if grab_cooldown_timer > 0.0:
 		return
-
 	if Input.is_action_pressed("grab") and current_stamina > 0.0 and not is_climbing and not is_in_water and not is_trapped:
 		var rails = get_tree().get_nodes_in_group("grind_rails")
 		var closest_rail: GrindRail = null
@@ -773,26 +767,19 @@ func run_grind(delta: float) -> void:
 	if not current_rail:
 		is_grinding = false
 		return
-
 	var tangent = current_rail.get_tangent_at(grab_t)
-	
 	var move_input := input_dir.x
 	if move_input == 0.0:
 		move_input = input_dir.y * -signf(tangent.y)
-	
 	var target_speed := move_input * grind_speed
-	
 	if grab_t <= 0.001 and target_speed < 0.0:
 		target_speed = 0.0
 		current_grind_speed = 0.0
 	elif grab_t >= 0.999 and target_speed > 0.0:
 		target_speed = 0.0
 		current_grind_speed = 0.0
-	
 	var moved := absf(move_input) > 0.01 and absf(target_speed) > 0.01
-	
 	current_grind_speed = move_toward(current_grind_speed, target_speed, grind_accel * delta)
-	
 	if absf(current_grind_speed) > 0.001:
 		var new_t = grab_t + current_grind_speed * delta
 		if new_t >= 0.0 and new_t <= 1.0:
@@ -800,10 +787,7 @@ func run_grind(delta: float) -> void:
 			moved = true
 		else:
 			current_grind_speed = 0.0
-	
 	target_grind_pos = current_rail.get_point_at_t(grab_t) + grind_hang_offset
 	global_position = global_position.move_toward(target_grind_pos, grind_snap_speed * delta)
-	
 	current_rail.apply_grab_pull(global_position, grab_t, 0.12, moved)
-	
 	velocity = Vector2.ZERO

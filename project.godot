@@ -8,6 +8,11 @@
 
 config_version=5
 
+[accessibility]
+
+general/accessibility_support=1
+general/accessibility_driver="dummy"
+
 [application]
 
 config/name="parkure"
@@ -20,6 +25,7 @@ config/icon="res://icon.svg"
 
 [display]
 
+window/size/mode=4
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/per_pixel_transparency/allowed=true
@@ -77,7 +83,6 @@ limits/message_queue/max_size_mb=256
 
 [rendering]
 
-occlusion_culling/bvh_build_quality=0
 textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
 driver/threads/thread_model=2
@@ -92,4 +97,7 @@ scaling_3d/mode.macos=5
 global_illumination/sdfgi/probe_ray_count=0
 global_illumination/sdfgi/frames_to_converge=0
 global_illumination/sdfgi/frames_to_update_lights=0
+occlusion_culling/use_occlusion_culling=true
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true
 vrs/mode=1

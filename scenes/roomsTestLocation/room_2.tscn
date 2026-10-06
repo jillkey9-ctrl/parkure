@@ -12,7 +12,7 @@ script = ExtResource("1_jep2r")
 [node name="ColorRect" type="ColorRect" parent="." unique_id=425635555]
 offset_right = 40.0
 offset_bottom = 40.0
-color = Color(0.0666666, 0, 1, 1)
+color = Color(1, 0, 0, 1)
 
 [node name="Start" type="Node2D" parent="." unique_id=1557609204]
 position = Vector2(0, 20)

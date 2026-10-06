@@ -8,8 +8,10 @@
 [ext_resource type="PackedScene" uid="uid://cklwgukplr7lo" path="res://scenes/roomsTestLocation/room_2.tscn" id="6_0o1xk"]
 [ext_resource type="PackedScene" uid="uid://cm03d8jcu3f5h" path="res://scenes/roomsTestLocation/room_4.tscn" id="7_5n41p"]
 [ext_resource type="PackedScene" uid="uid://bjhgkab2mcywy" path="res://scenes/roomsTestLocation/room_5.tscn" id="8_0o1xk"]
+[ext_resource type="PackedScene" uid="uid://l3ss378im05h" path="res://scenes/roomsTestLocation/room_7.tscn" id="9_digtk"]
 [ext_resource type="PackedScene" uid="uid://7p52wds3ahu8" path="res://scenes/roomsTestLocation/room_6.tscn" id="9_semme"]
 [ext_resource type="PackedScene" uid="uid://d0ww30qx2wwiy" path="res://scenes/roomsTestLocation/room_1Location2.tscn" id="10_0o1xk"]
+[ext_resource type="PackedScene" uid="uid://boilq0otfx162" path="res://scenes/roomsTestLocation/room_8.tscn" id="10_rcok0"]
 
 [sub_resource type="Resource" id="Resource_qljxh"]
 script = ExtResource("3_x41kc")
@@ -17,14 +19,14 @@ min_rooms = 500
 max_rooms = 900
 starting_room = ExtResource("5_5n41p")
 ending_room = ExtResource("4_rw8da")
-rooms = Array[PackedScene]([ExtResource("6_0o1xk"), ExtResource("4_rw8da"), ExtResource("7_5n41p"), ExtResource("8_0o1xk"), ExtResource("9_semme")])
+rooms = Array[PackedScene]([ExtResource("6_0o1xk"), ExtResource("4_rw8da"), ExtResource("7_5n41p"), ExtResource("8_0o1xk"), ExtResource("9_semme"), ExtResource("9_digtk"), ExtResource("10_rcok0")])
 metadata/_custom_type_script = "uid://sdbs05ysadr"
 
 [sub_resource type="Resource" id="Resource_semme"]
 script = ExtResource("3_x41kc")
 starting_room = ExtResource("10_0o1xk")
 ending_room = ExtResource("4_rw8da")
-rooms = Array[PackedScene]([ExtResource("6_0o1xk"), ExtResource("4_rw8da"), ExtResource("7_5n41p"), ExtResource("8_0o1xk"), ExtResource("9_semme")])
+rooms = Array[PackedScene]([ExtResource("6_0o1xk"), ExtResource("4_rw8da"), ExtResource("7_5n41p"), ExtResource("8_0o1xk"), ExtResource("9_semme"), ExtResource("9_digtk"), ExtResource("10_rcok0")])
 metadata/_custom_type_script = "uid://sdbs05ysadr"
 
 [node name="generationMapTest" type="Node2D" unique_id=1672256634]

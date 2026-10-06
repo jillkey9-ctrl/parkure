@@ -39,7 +39,7 @@ a = Vector2(-46, 1)
 b = Vector2(44, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u5vs0"]
-size = Vector2(394, 416)
+size = Vector2(1235, 970)
 
 [node name="test" type="Node2D" unique_id=1378794895]
 
@@ -67,8 +67,9 @@ offset_bottom = 40.0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4" unique_id=155781210]
 shape = SubResource("SegmentShape2D_ob1gf")
 
-[node name="player" parent="." unique_id=2104594944 instance=ExtResource("1_ob1gf")]
+[node name="player" parent="." unique_id=2104594944 node_paths=PackedStringArray("stamina_bar") instance=ExtResource("1_ob1gf")]
 position = Vector2(45, -70)
+stamina_bar = NodePath("../CanvasLayer/ColorRect")
 
 [node name="Button" type="Button" parent="." unique_id=1958992385]
 offset_left = 421.0
@@ -199,22 +200,22 @@ offset_bottom = 625.0
 color = Color(0.5439999, 1, 0.24000001, 1)
 
 [node name="water" type="Area2D" parent="." unique_id=1856407536]
-position = Vector2(1152, -348)
+position = Vector2(1155, -208)
 script = ExtResource("9_1phwq")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="water" unique_id=159541791]
-position = Vector2(1, 0)
+position = Vector2(421.5, -277)
 shape = SubResource("RectangleShape2D_u5vs0")
 
 [node name="ColorRect" type="ColorRect" parent="water" unique_id=1085249513]
 offset_left = -196.0
-offset_top = -209.0
-offset_right = 199.0
+offset_top = -767.0
+offset_right = 1044.0
 offset_bottom = 209.0
 color = Color(0, 0.3333335, 1, 0.30980393)
 
 [node name="vine" type="Line2D" parent="." unique_id=1587527467]
-position = Vector2(1387, -405)
+position = Vector2(197, -1027)
 points = PackedVector2Array(0, 0, 0, 0, 665, -1)
 script = ExtResource("10_ob1gf")
 detection_radius = 70.0

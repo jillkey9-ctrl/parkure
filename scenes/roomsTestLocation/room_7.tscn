@@ -1,25 +1,25 @@
-[gd_scene format=3 uid="uid://7p52wds3ahu8"]
+[gd_scene format=3 uid="uid://l3ss378im05h"]
 
-[ext_resource type="Script" uid="uid://cujjbxcl06yqe" path="res://scripts/roomConection.gd" id="1_a5xwa"]
+[ext_resource type="Script" uid="uid://cujjbxcl06yqe" path="res://scripts/roomConection.gd" id="1_i7bpf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_a5xwa"]
 size = Vector2(38, 38)
 
-[node name="room6" type="Node2D" unique_id=1577610609]
+[node name="room7" type="Node2D" unique_id=1577610609]
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1743782579]
 offset_right = 40.0
 offset_bottom = 40.0
-color = Color(0, 1, 0.14999986, 1)
+color = Color(0, 0.2833333, 1, 1)
 
 [node name="Start" type="Node2D" parent="." unique_id=1319662476]
-position = Vector2(20, 40)
-script = ExtResource("1_a5xwa")
-direction = 2
+position = Vector2(40, 20)
+script = ExtResource("1_i7bpf")
 
 [node name="End" type="Node2D" parent="." unique_id=1734340815]
-position = Vector2(40, 20)
-script = ExtResource("1_a5xwa")
+position = Vector2(0, 20)
+script = ExtResource("1_i7bpf")
+direction = 3
 
 [node name="Bounds" type="Area2D" parent="." unique_id=1886771786]
 
