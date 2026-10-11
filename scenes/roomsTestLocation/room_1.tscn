@@ -3,34 +3,106 @@
 [ext_resource type="Script" uid="uid://c0a85r6r3pkmh" path="res://scripts/room.gd" id="1_560jv"]
 [ext_resource type="Script" uid="uid://cujjbxcl06yqe" path="res://scripts/roomConection.gd" id="2_cnfcb"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
-size = Vector2(38, 38)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cnfcb"]
+size = Vector2(454, 266)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xetj1"]
+size = Vector2(458, 22)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b3ero"]
+size = Vector2(28, 269)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5vgjm"]
+size = Vector2(28, 269)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xttlf"]
+size = Vector2(175, 22)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bs4cn"]
+size = Vector2(175, 22)
 
 [node name="room1" type="Node2D" unique_id=2016950673]
 script = ExtResource("1_560jv")
+room_type = 1
+time_bonus = 5.0
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=989705865]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 211.0
+offset_top = 114.0
+offset_right = 251.0
+offset_bottom = 154.0
 color = Color(1, 0, 0, 1)
 
-[node name="Start" type="Node2D" parent="." unique_id=1564309745]
-position = Vector2(0, 20)
-script = ExtResource("2_cnfcb")
-direction = 3
-
 [node name="End" type="Node2D" parent="." unique_id=919890420]
-position = Vector2(40, 20)
+position = Vector2(230, 0)
 script = ExtResource("2_cnfcb")
+direction = 0
 
 [node name="Bounds" type="Area2D" parent="." unique_id=460241001]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds" unique_id=617203633]
-position = Vector2(20, 20)
-shape = SubResource("RectangleShape2D_qljxh")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds" unique_id=387836548]
+position = Vector2(228, 134)
+shape = SubResource("RectangleShape2D_cnfcb")
 
 [node name="Label" type="Label" parent="." unique_id=525377354]
 z_index = 2
 offset_right = 40.0
 offset_bottom = 23.0
 text = "локация1"
+
+[node name="room" type="Node2D" parent="." unique_id=1449434520]
+position = Vector2(0, 154.025)
+
+[node name="ColorRect" type="ColorRect" parent="room" unique_id=604046525]
+offset_top = 93.0
+offset_right = 458.0
+offset_bottom = 115.0
+
+[node name="ColorRect4" type="ColorRect" parent="room" unique_id=1798653841]
+offset_top = -154.0
+offset_right = 175.0
+offset_bottom = -132.0
+
+[node name="ColorRect7" type="ColorRect" parent="room" unique_id=1088318384]
+offset_left = 283.0
+offset_top = -154.0
+offset_right = 458.0
+offset_bottom = -132.0
+
+[node name="ColorRect2" type="ColorRect" parent="room" unique_id=768342649]
+offset_left = 430.0
+offset_top = -132.0
+offset_right = 458.0
+offset_bottom = 93.0
+
+[node name="ColorRect6" type="ColorRect" parent="room" unique_id=119401621]
+offset_top = -132.0
+offset_right = 28.0
+offset_bottom = 92.975006
+
+[node name="spawn" type="Node2D" parent="." unique_id=1992585772]
+position = Vector2(225, 99)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1759084898]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=505719060]
+position = Vector2(229, 258)
+shape = SubResource("RectangleShape2D_xetj1")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D" unique_id=1695253752]
+position = Vector2(444, 134.5)
+shape = SubResource("RectangleShape2D_b3ero")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D" unique_id=381256565]
+position = Vector2(14, 134)
+shape = SubResource("RectangleShape2D_5vgjm")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D" unique_id=921442204]
+position = Vector2(370.5, 11)
+shape = SubResource("RectangleShape2D_xttlf")
+
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D" unique_id=635491900]
+position = Vector2(88, 11)
+shape = SubResource("RectangleShape2D_bs4cn")
+
+[node name="spawn2" type="Node2D" parent="." unique_id=250936989]

@@ -1,28 +1,110 @@
 [gd_scene format=3 uid="uid://boilq0otfx162"]
 
+[ext_resource type="Script" uid="uid://c0a85r6r3pkmh" path="res://scripts/room.gd" id="1_hr7sb"]
 [ext_resource type="Script" uid="uid://cujjbxcl06yqe" path="res://scripts/roomConection.gd" id="1_olpeb"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_a5xwa"]
-size = Vector2(38, 38)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_olpeb"]
+size = Vector2(454, 266)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hr7sb"]
+size = Vector2(458, 22)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jnhpj"]
+size = Vector2(28, 269)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uvl0w"]
+size = Vector2(175, 22)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5lqgw"]
+size = Vector2(175, 22)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4dkhk"]
+size = Vector2(28, 98.5)
 
 [node name="room8" type="Node2D" unique_id=1577610609]
+script = ExtResource("1_hr7sb")
+time_bonus = 5.0
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1743782579]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 211.0
+offset_top = 110.0
+offset_right = 251.0
+offset_bottom = 150.0
 color = Color(1, 0, 1, 1)
 
 [node name="Start" type="Node2D" parent="." unique_id=1319662476]
-position = Vector2(40, 20)
+position = Vector2(458, 138.025)
 script = ExtResource("1_olpeb")
 
 [node name="End" type="Node2D" parent="." unique_id=1734340815]
-position = Vector2(20, 0)
+position = Vector2(230, 0)
 script = ExtResource("1_olpeb")
 direction = 0
 
 [node name="Bounds" type="Area2D" parent="." unique_id=1886771786]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds" unique_id=667879902]
-position = Vector2(20, 20)
-shape = SubResource("RectangleShape2D_a5xwa")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds" unique_id=699999688]
+position = Vector2(228, 134)
+shape = SubResource("RectangleShape2D_olpeb")
+
+[node name="room" type="Node2D" parent="." unique_id=219430629]
+position = Vector2(0, 154)
+
+[node name="ColorRect" type="ColorRect" parent="room" unique_id=1771717462]
+offset_top = 93.0
+offset_right = 458.0
+offset_bottom = 115.0
+
+[node name="ColorRect4" type="ColorRect" parent="room" unique_id=1814596697]
+offset_top = -154.0
+offset_right = 175.0
+offset_bottom = -132.0
+
+[node name="ColorRect7" type="ColorRect" parent="room" unique_id=797820547]
+offset_left = 283.0
+offset_top = -154.0
+offset_right = 458.0
+offset_bottom = -132.0
+
+[node name="ColorRect2" type="ColorRect" parent="room" unique_id=1783269976]
+offset_top = -132.0
+offset_right = 28.0
+offset_bottom = 93.0
+
+[node name="ColorRect3" type="ColorRect" parent="room" unique_id=87734353]
+offset_left = 430.0
+offset_top = 16.0
+offset_right = 458.0
+offset_bottom = 93.0
+
+[node name="ColorRect6" type="ColorRect" parent="room" unique_id=230399869]
+offset_left = 430.0
+offset_top = -132.0
+offset_right = 458.0
+offset_bottom = -55.0
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=804129033]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1407043329]
+position = Vector2(229, 258)
+shape = SubResource("RectangleShape2D_hr7sb")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D" unique_id=2036542520]
+position = Vector2(14, 134)
+shape = SubResource("RectangleShape2D_jnhpj")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D" unique_id=313685749]
+position = Vector2(370.5, 11)
+shape = SubResource("RectangleShape2D_uvl0w")
+
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D" unique_id=616563111]
+position = Vector2(88, 11)
+shape = SubResource("RectangleShape2D_5lqgw")
+
+[node name="CollisionShape2D6" type="CollisionShape2D" parent="StaticBody2D" unique_id=1582666701]
+position = Vector2(444, 219.25)
+shape = SubResource("RectangleShape2D_4dkhk")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D" unique_id=1188137531]
+position = Vector2(444, 50)
+shape = SubResource("RectangleShape2D_4dkhk")

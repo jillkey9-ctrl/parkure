@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://ckjr67yps26t8"]
+
+[ext_resource type="Script" uid="uid://bfthuska12m8d" path="res://scripts/changeScene.gd" id="1_yqeox"]
+
+[node name="Node2D" type="Node2D" unique_id=2099049745]
+
+[node name="obj" type="Button" parent="." unique_id=1800378122]
+offset_left = -519.0
+offset_top = -228.0
+offset_right = -389.0
+offset_bottom = 34.0
+text = "testObjects"
+script = ExtResource("1_yqeox")
+target_scene_path = "uid://cph30m362fxvx"
+
+[node name="testGeneration" type="Button" parent="." unique_id=131380314]
+offset_left = -376.0
+offset_top = -228.0
+offset_right = -246.0
+offset_bottom = 34.0
+text = "testGenerationMap"
+script = ExtResource("1_yqeox")
+target_scene_path = "uid://c3oplrupugu5h"
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1707550593]
