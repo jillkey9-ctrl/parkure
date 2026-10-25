@@ -25,6 +25,7 @@ metadata/_custom_type_script = "uid://sdbs05ysadr"
 [node name="generationMapTest" type="Node2D" unique_id=1672256634]
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=948251061]
+zoom = Vector2(2, 2)
 script = ExtResource("1_digtk")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=888857321]

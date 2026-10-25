@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c2i28l2i3xsp2"
-path="res://.godot/imported/playerGrab.png-ab725e0cdb7a1f858b66cfa2587e89ed.ctex"
+uid="uid://v4fjllltlsy7"
+path="res://.godot/imported/decor4.png-cfaebbd444caf758a14356fb6bac74b7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/objects/player/playerGrab.png"
-dest_files=["res://.godot/imported/playerGrab.png-ab725e0cdb7a1f858b66cfa2587e89ed.ctex"]
+source_file="res://sprites/objects/caveDecor/decor4.png"
+dest_files=["res://.godot/imported/decor4.png-cfaebbd444caf758a14356fb6bac74b7.ctex"]
 
 [params]
 

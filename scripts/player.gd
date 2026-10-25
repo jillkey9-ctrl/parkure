@@ -4,10 +4,21 @@ extends CharacterBody2D
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var color_rect: ColorRect = $ColorRect
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 @export var stamina_bar: ColorRect
 @export var stamina_color: Color = Color.WHITE
 @export var stamina_no_dash_color: Color = Color.CYAN
+
+@export var hands_center: Node2D
+
+@export var idle_anim := "idle"
+@export var run_anim := "run"
+@export var idle_to_run_anim := "idle-run"
+@export var run_to_idle_anim := "run-idle"
+
+@export var hp_label: Label
+@export var effect_buttons: Array[Button] = []
 
 const BASE_WALK_FPS := 9.0
 
@@ -98,6 +109,10 @@ var original_stamina_bar_width := 0.0
 var spring_gravity_timer := 0.0
 var is_in_water := false
 
+var current_hp := 100.0
+var max_hp := 100.0
+var active_effects: Array[Dictionary] = []
+
 var is_trapped := false
 var trap_center := Vector2.ZERO
 var trap_radius := 0.0
@@ -116,30 +131,19 @@ var grab_cooldown_timer := 0.0
 var grab_cooldown_time := 0.4
 var last_move_dir := Vector2.ZERO
 
-var turn_squash_timer := 0.0
-var turn_squash_duration := 0.15
-var turn_squash_amount := 0.6
-var fall_time := 0.0
-var max_fall_squash := 0.4
-var fall_squash_rate := 2.5
-var current_fall_squash := 0.0
-var fall_squash_velocity := 0.0
-var fall_squash_target := 0.0
-var jump_stretch_amount := 0.25
-var current_jump_stretch := 0.0
-var air_rotation_amount := 0.15
-var current_air_rotation := 0.0
-var crouch_squash_y := 0.3
-var crouch_squash_x := 0.15
-var current_crouch_squash := 0.0
-var dash_stretch_amount := 0.35
-var current_dash_stretch := 0.0
+var animation_state := "idle"
+var pending_state := ""
+var is_transitioning := false
 
 func _ready() -> void:
 	dashes_remaining = max_air_dashes
 	current_stamina = max_stamina
+	current_hp = max_hp
 	add_to_group("player")
 	floor_max_angle = deg_to_rad(70.0)
+	
+	if animation_player:
+		animation_player.animation_finished.connect(_on_animation_finished)
 	
 	if stamina_bar:
 		original_stamina_bar_width = stamina_bar.size.x
@@ -154,6 +158,12 @@ func _ready() -> void:
 		original_color_rect_position = color_rect.position
 		crouch_color_rect_size = original_color_rect_size * Vector2(1.0, 0.6)
 		crouch_color_rect_position = original_color_rect_position + Vector2(0.0, original_color_rect_size.y * 0.4)
+	
+	for button in effect_buttons:
+		if button:
+			button.pressed.connect(_on_effect_button_pressed.bind(button))
+	
+	update_hp_display()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("jump"):
@@ -168,8 +178,6 @@ func _physics_process(delta: float) -> void:
 	if absf(input_dir.x) > 0.1:
 		previous_facing = facing
 		facing = 1 if input_dir.x > 0.0 else -1
-		if facing != previous_facing:
-			turn_squash_timer = turn_squash_duration
 	if input_dir != Vector2.ZERO:
 		last_move_dir = input_dir.normalized()
 
@@ -232,121 +240,94 @@ func _physics_process(delta: float) -> void:
 
 	update_stamina(delta)
 	update_stamina_bar()
+	update_hands()
 	update_animations()
+	update_hp_display()
+
+func update_hands() -> void:
+	if hands_center:
+		hands_center.scale.x = -1.0 if facing == 1 else 1.0
 
 func update_animations() -> void:
-	if not animated_sprite:
+	if animated_sprite:
+		animated_sprite.flip_h = facing == 1
+
+		var current_anim := "idle"
+		var anim_speed := 1.0
+		var is_in_special_state := is_climbing or is_in_water or is_trapped or dash_timer > 0.0 or is_grinding
+		var has_horizontal_movement := absf(velocity.x) > 10.0 or absf(input_dir.x) > 0.1
+
+		if is_on_floor() and not is_sliding and not is_in_special_state:
+			if has_horizontal_movement:
+				current_anim = "crouch_walk" if is_crouching else "walk"
+				var speed_ratio := absf(velocity.x) / run_speed
+				if is_crouching:
+					speed_ratio *= 0.5
+				anim_speed = clampf(speed_ratio, 0.3, 1.5)
+			else:
+				current_anim = "crouch_idle" if is_crouching else "idle"
+		else:
+			current_anim = "walk"
+			var speed_ratio := maxf(absf(velocity.x) / run_speed, 0.3)
+			anim_speed = clampf(speed_ratio, 0.4, 1.3)
+
+		if animated_sprite.animation != current_anim:
+			animated_sprite.play(current_anim)
+		animated_sprite.speed_scale = anim_speed
+
+	update_hands_animation()
+
+func update_hands_animation() -> void:
+	if not animation_player:
 		return
 
-	animated_sprite.flip_h = facing == 1
+	var desired_state := _get_hands_state()
 
-	var current_anim := "idle"
-	var anim_speed := 1.0
-	var delta_time := get_physics_process_delta_time()
-	var is_in_special_state := is_climbing or is_in_water or is_trapped or dash_timer > 0.0
+	if is_transitioning:
+		pending_state = desired_state
+		return
+
+	if desired_state == animation_state:
+		if animation_player.current_animation != StringName(desired_state):
+			animation_player.play(desired_state)
+		if desired_state == run_anim:
+			animation_player.speed_scale = clampf(absf(velocity.x) / run_speed, 0.5, 1.5)
+		else:
+			animation_player.speed_scale = 1.0
+		return
+
+	if animation_state == idle_anim and desired_state == run_anim and animation_player.has_animation(idle_to_run_anim):
+		is_transitioning = true
+		pending_state = desired_state
+		animation_state = run_anim
+		animation_player.play(idle_to_run_anim, 0.0, 1.0, false)
+	elif animation_state == run_anim and desired_state == idle_anim and animation_player.has_animation(run_to_idle_anim):
+		is_transitioning = true
+		pending_state = desired_state
+		animation_state = idle_anim
+		animation_player.play(run_to_idle_anim, 0.0, 1.0, false)
+	else:
+		animation_state = desired_state
+		animation_player.play(desired_state)
+
+func _get_hands_state() -> String:
+	var is_in_special_state := is_climbing or is_in_water or is_trapped or dash_timer > 0.0 or is_grinding
 	var has_horizontal_movement := absf(velocity.x) > 10.0 or absf(input_dir.x) > 0.1
+	if is_on_floor() and not is_sliding and not is_in_special_state:
+		return run_anim if has_horizontal_movement else idle_anim
+	return run_anim
 
-	if is_grinding:
-		current_anim = "grind"
-		var grind_speed_ratio := absf(current_grind_speed) / grind_speed
-		anim_speed = clampf(grind_speed_ratio, 0.5, 1.2)
-	elif is_on_floor() and not is_sliding and not is_in_special_state:
-		if has_horizontal_movement:
-			current_anim = "walk"
-			var speed_ratio := absf(velocity.x) / run_speed
-			if is_crouching:
-				speed_ratio *= 0.5
-			anim_speed = clampf(speed_ratio, 0.3, 1.5)
-	elif not is_on_floor() and not is_in_special_state:
-		if has_horizontal_movement:
-			current_anim = "walk"
-			var speed_ratio := absf(velocity.x) / run_speed
-			anim_speed = clampf(speed_ratio, 0.4, 1.3)
-		elif velocity.y < 0.0:
-			current_anim = "jump"
-		else:
-			current_anim = "fall"
-
-	if animated_sprite.animation != current_anim:
-		animated_sprite.play(current_anim)
-	animated_sprite.speed_scale = anim_speed
-
-	var target_x := 1.0
-	var target_y := 1.0
-	var target_rotation := 0.0
-
-	if turn_squash_timer > 0.0:
-		turn_squash_timer -= delta_time
-		var squash_progress = 1.0 - (turn_squash_timer / turn_squash_duration)
-		target_x = 1.0 - (turn_squash_amount * (1.0 - squash_progress))
-
-	var is_falling := not is_on_floor() and velocity.y > 50.0 and not is_in_special_state and not is_grinding
-	
-	if is_falling:
-		fall_time += delta_time
-		fall_squash_target = minf(fall_time * fall_squash_rate, max_fall_squash)
-	else:
-		fall_time = 0.0
-		fall_squash_target = 0.0
-
-	var spring_stiffness := 180.0
-	var spring_damping := 12.0
-	
-	var spring_force := (fall_squash_target - current_fall_squash) * spring_stiffness
-	var damping_force := -fall_squash_velocity * spring_damping
-	fall_squash_velocity += (spring_force + damping_force) * delta_time
-	current_fall_squash += fall_squash_velocity * delta_time
-
-	target_y = 1.0 - current_fall_squash
-
-	var in_air := not is_on_floor() and not is_in_special_state and not is_grinding
-	
-	if in_air:
-		if velocity.y < 0.0 or has_horizontal_movement:
-			var stretch_factor = minf(absf(velocity.y) / absf(jump_velocity), 1.5)
-			var jump_stretch_target = jump_stretch_amount * stretch_factor
-			if has_horizontal_movement and velocity.y > 0.0:
-				jump_stretch_target *= 0.3
-			current_jump_stretch = lerp(current_jump_stretch, jump_stretch_target, 8.0 * delta_time)
-			
-			if absf(input_dir.x) > 0.1:
-				current_air_rotation = lerp(current_air_rotation, -input_dir.x * air_rotation_amount * 0.5, 6.0 * delta_time)
-			else:
-				current_air_rotation = lerp(current_air_rotation, 0.0, 8.0 * delta_time)
-		else:
-			current_jump_stretch = lerp(current_jump_stretch, 0.0, 10.0 * delta_time)
-			
-			if absf(velocity.x) > 50.0:
-				var rotation_target = clampf(velocity.x / max_fall_speed * air_rotation_amount, -air_rotation_amount, air_rotation_amount)
-				current_air_rotation = lerp(current_air_rotation, rotation_target, 5.0 * delta_time)
-			else:
-				current_air_rotation = lerp(current_air_rotation, 0.0, 8.0 * delta_time)
-	else:
-		current_jump_stretch = lerp(current_jump_stretch, 0.0, 12.0 * delta_time)
-		current_air_rotation = lerp(current_air_rotation, 0.0, 12.0 * delta_time)
-
-	if dash_timer > 0.0:
-		var dash_progress = dash_elapsed / (water_dash_duration if is_in_water else dash_time)
-		var stretch_target = dash_stretch_amount * (1.0 - dash_progress)
-		current_dash_stretch = lerp(current_dash_stretch, stretch_target, 15.0 * delta_time)
-	else:
-		current_dash_stretch = lerp(current_dash_stretch, 0.0, 12.0 * delta_time)
-
-	if current_dash_stretch > 0.01:
-		target_x *= 1.0 + current_dash_stretch
-		target_y *= 1.0 - current_dash_stretch * 0.5
-
-	if is_crouching:
-		current_crouch_squash = lerp(current_crouch_squash, 1.0, 10.0 * delta_time)
-	else:
-		current_crouch_squash = lerp(current_crouch_squash, 0.0, 10.0 * delta_time)
-
-	target_y += current_jump_stretch - current_crouch_squash * crouch_squash_y
-	target_x += current_crouch_squash * crouch_squash_x
-	target_rotation = current_air_rotation
-
-	animated_sprite.scale = Vector2(target_x, target_y)
-	animated_sprite.rotation = target_rotation
+func _on_animation_finished(anim_name: StringName) -> void:
+	if anim_name != StringName(idle_to_run_anim) and anim_name != StringName(run_to_idle_anim):
+		return
+	if not animation_player:
+		return
+	is_transitioning = false
+	if pending_state == "":
+		pending_state = animation_state
+	animation_state = pending_state
+	pending_state = ""
+	animation_player.play(animation_state)
 
 func run_trapped(delta: float) -> void:
 	if dash_buffer_timer > 0.0 and dashes_remaining > 0:
@@ -492,10 +473,6 @@ func update_crouch_state() -> void:
 	if want_crouch == is_crouching:
 		return
 	is_crouching = want_crouch
-	if want_crouch:
-		apply_crouch_visuals()
-	else:
-		apply_stand_visuals()
 
 func reset_climb_state() -> void:
 	is_climbing = false
@@ -603,7 +580,6 @@ func do_jump() -> void:
 		end_slide()
 	if is_crouching:
 		is_crouching = false
-		apply_stand_visuals()
 	var wall_side := climb_wall_side if is_climbing else touch_wall_side
 	if not is_on_floor() and wall_side != 0:
 		velocity.x = -wall_side * wall_jump_x_force
@@ -791,3 +767,55 @@ func run_grind(delta: float) -> void:
 	global_position = global_position.move_toward(target_grind_pos, grind_snap_speed * delta)
 	current_rail.apply_grab_pull(global_position, grab_t, 0.12, moved)
 	velocity = Vector2.ZERO
+
+func apply_effect(effect_name: String, amount: float) -> void:
+	if effect_name.to_lower() == "hp" or effect_name.to_lower() == "хп":
+		current_hp = minf(current_hp + amount, max_hp)
+		current_stamina = minf(current_stamina + amount, max_stamina)
+		remove_effects_by_heal(amount)
+	else:
+		current_hp = maxf(current_hp - amount, 0.0)
+		add_or_sum_effect(effect_name, amount)
+		current_stamina = minf(current_stamina + amount, max_stamina)
+	update_hp_display()
+
+func add_or_sum_effect(effect_name: String, amount: float) -> void:
+	var found := false
+	for i in range(active_effects.size()):
+		if active_effects[i]["name"] == effect_name:
+			active_effects[i]["amount"] += amount
+			found = true
+			break
+	if not found:
+		active_effects.append({"name": effect_name, "amount": amount})
+
+func remove_effects_by_heal(heal_amount: float) -> void:
+	var remaining_heal := heal_amount
+	for i in range(active_effects.size() - 1, -1, -1):
+		if remaining_heal <= 0.0:
+			break
+		var effect_amount = active_effects[i]["amount"]
+		if effect_amount <= remaining_heal:
+			remaining_heal -= effect_amount
+			active_effects.remove_at(i)
+		else:
+			active_effects[i]["amount"] -= remaining_heal
+			remaining_heal = 0.0
+
+func update_hp_display() -> void:
+	if not hp_label:
+		return
+	
+	var hp_percent := (current_hp / max_hp) * 100.0
+	var text := "HP: %d%%" % int(hp_percent)
+	
+	if active_effects.size() > 0:
+		for effect in active_effects:
+			text += " %s %d" % [effect["name"], int(effect["amount"])]
+	
+	hp_label.text = text
+
+func _on_effect_button_pressed(button: Button) -> void:
+	var effect_name = button.get_meta("effect_name", "hp")
+	var effect_amount = button.get_meta("effect_amount", 10.0)
+	apply_effect(effect_name, effect_amount)

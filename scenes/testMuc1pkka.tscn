@@ -69,7 +69,7 @@ shape = SubResource("SegmentShape2D_ob1gf")
 
 [node name="player" parent="." unique_id=2104594944 node_paths=PackedStringArray("stamina_bar") instance=ExtResource("1_ob1gf")]
 position = Vector2(45, -70)
-stamina_bar = NodePath("../CanvasLayer/ColorRect")
+stamina_bar = NodePath("")
 
 [node name="Button" type="Button" parent="." unique_id=1958992385]
 offset_left = 421.0
@@ -189,15 +189,6 @@ shape = SubResource("RectangleShape2D_8prbo")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="platformCollision/StaticBody2D" unique_id=663325091]
 position = Vector2(0, 1)
 shape = SubResource("SegmentShape2D_51f6n")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=948556172]
-
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=403700061]
-offset_left = 21.0
-offset_top = 585.0
-offset_right = 312.0
-offset_bottom = 625.0
-color = Color(0.5439999, 1, 0.24000001, 1)
 
 [node name="water" type="Area2D" parent="." unique_id=1856407536]
 position = Vector2(1155, -208)

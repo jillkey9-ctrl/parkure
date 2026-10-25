@@ -1,38 +1,54 @@
 [gd_scene format=3 uid="uid://cv8rhtwsnhuip"]
 
 [ext_resource type="Script" uid="uid://55lac2756b0u" path="res://scripts/player.gd" id="1_eqqp1"]
-[ext_resource type="Texture2D" uid="uid://bfx05jbw6ndkp" path="res://sprites/objects/player/playerIdle.png" id="2_3rerk"]
-[ext_resource type="Texture2D" uid="uid://bixq4rt35spd" path="res://sprites/objects/player/playerjump.png" id="2_i825w"]
-[ext_resource type="Texture2D" uid="uid://c2i28l2i3xsp2" path="res://sprites/objects/player/playerGrab.png" id="3_3rfka"]
-[ext_resource type="Texture2D" uid="uid://deqtjp8xe2d6m" path="res://sprites/objects/player/playerWalk1.png" id="3_i825w"]
-[ext_resource type="Texture2D" uid="uid://dt5sq40sjmmiq" path="res://sprites/objects/player/playerWalk2.png" id="4_3rfka"]
-[ext_resource type="Texture2D" uid="uid://hswonawlr0c" path="res://sprites/objects/player/playerWalk3.png" id="5_i8sra"]
-[ext_resource type="Texture2D" uid="uid://bax4brhmlsa62" path="res://sprites/objects/player/playerWalk4.png" id="6_4vq5b"]
+[ext_resource type="Texture2D" uid="uid://keaypbhburnp" path="res://sprites/objects/player/player6.png" id="2_3nfmf"]
+[ext_resource type="Texture2D" uid="uid://k5n4bnvbgx4" path="res://sprites/objects/player/player7.png" id="3_4vq5b"]
+[ext_resource type="Texture2D" uid="uid://2vakp2bj0ngb" path="res://sprites/objects/player/player8.png" id="4_3nfmf"]
+[ext_resource type="Texture2D" uid="uid://cnx1spfxvxab5" path="res://sprites/objects/player/player5.png" id="5_i825w"]
+[ext_resource type="Texture2D" uid="uid://7gm7n2qdlhim" path="res://sprites/objects/player/player9.png" id="5_r673r"]
+[ext_resource type="Texture2D" uid="uid://t3pr0l7s081r" path="res://sprites/objects/player/player1.png" id="7_5esnd"]
+[ext_resource type="Texture2D" uid="uid://bnw4iqt4r8ix7" path="res://sprites/objects/player/player4.png" id="8_w1o2u"]
+[ext_resource type="Texture2D" uid="uid://5b6vwb2tsst4" path="res://sprites/objects/player/player2.png" id="10_2sux5"]
+[ext_resource type="Animation" uid="uid://d2nxtb3fvnk07" path="res://animations/idle.res" id="11_3nfmf"]
+[ext_resource type="Texture2D" uid="uid://bcqyutmqecw07" path="res://sprites/objects/player/player3.png" id="11_iqfnf"]
+[ext_resource type="Animation" uid="uid://bj6pmti6mm1eb" path="res://animations/idle-run.res" id="12_r673r"]
+[ext_resource type="Animation" uid="uid://c5le5oja1apyn" path="res://animations/run.res" id="13_mqnmn"]
+[ext_resource type="Animation" uid="uid://iaocee1ytycc" path="res://animations/run-idle.res" id="14_5esnd"]
+[ext_resource type="Script" uid="uid://dbhqy6wah2arr" path="res://scripts/testings/buttonEffectHp.gd" id="15_mqnmn"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_qljxh"]
-radius = 15.033297
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
+size = Vector2(26, 87.5)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_51f6n"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_i825w")
+"texture": ExtResource("2_3nfmf")
 }],
-"loop": 1,
-"name": &"fall",
-"speed": 5.0
+"loop": 0,
+"name": &"crouch_idle",
+"speed": 25.0
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("3_3rfka")
+"texture": ExtResource("3_4vq5b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_3nfmf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_r673r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_3nfmf")
 }],
 "loop": 1,
-"name": &"grind",
-"speed": 5.0
+"name": &"crouch_walk",
+"speed": 4.0
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_3rerk")
+"texture": ExtResource("7_5esnd")
 }],
 "loop": 1,
 "name": &"idle",
@@ -40,37 +56,99 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_i825w")
-}],
-"loop": 1,
-"name": &"jump",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("4_3rfka")
+"texture": ExtResource("8_w1o2u")
 }, {
 "duration": 1.0,
-"texture": ExtResource("5_i8sra")
+"texture": ExtResource("7_5esnd")
 }, {
 "duration": 1.0,
-"texture": ExtResource("6_4vq5b")
+"texture": ExtResource("5_i825w")
 }, {
 "duration": 1.0,
-"texture": ExtResource("3_i825w")
+"texture": ExtResource("7_5esnd")
 }],
 "loop": 1,
 "name": &"walk",
-"speed": 9.0
+"speed": 6.0
 }]
 
-[node name="player" type="CharacterBody2D" unique_id=2104594944]
+[sub_resource type="Animation" id="Animation_42cpl"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("center/rightHand:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(11, -12)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("center/leftHand:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-12, -12)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("center/leftHand:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("center/rightHand:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_r673r"]
+_data = {
+&"RESET": SubResource("Animation_42cpl"),
+&"idle": ExtResource("11_3nfmf"),
+&"idle-run": ExtResource("12_r673r"),
+&"run": ExtResource("13_mqnmn"),
+&"run-idle": ExtResource("14_5esnd")
+}
+
+[node name="player" type="CharacterBody2D" unique_id=2104594944 node_paths=PackedStringArray("stamina_bar", "hands_center", "hp_label", "effect_buttons")]
 script = ExtResource("1_eqqp1")
+stamina_bar = NodePath("CanvasLayer/ColorRect")
 stamina_color = Color(0.54509807, 1, 0.23921569, 1)
+hands_center = NodePath("center")
+hp_label = NodePath("CanvasLayer/Label")
+effect_buttons = [NodePath("CanvasLayer/Button"), NodePath("CanvasLayer/Button2")]
+
+[node name="Node2D" type="Node2D" parent="." unique_id=340726613]
+position = Vector2(11, -16)
+
+[node name="Node2D2" type="Node2D" parent="." unique_id=1825842232]
+position = Vector2(-13, -16)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=435710884]
-position = Vector2(-2, 4)
-shape = SubResource("CircleShape2D_qljxh")
+position = Vector2(0, -9.25)
+shape = SubResource("RectangleShape2D_qljxh")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1875584935]
 visible = false
@@ -81,7 +159,60 @@ offset_bottom = 19.0
 color = Color(0.9264051, 0, 0.0077908286, 1)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1877014355]
-position = Vector2(-1, 13)
+z_index = 1
+position = Vector2(0, 13)
 sprite_frames = SubResource("SpriteFrames_51f6n")
-animation = &"grind"
-offset = Vector2(3.8, -23.5)
+animation = &"idle"
+frame_progress = 0.2245729
+offset = Vector2(0.46, -23.5)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=475817654]
+libraries/ = SubResource("AnimationLibrary_r673r")
+
+[node name="center" type="Node2D" parent="." unique_id=2138177816]
+
+[node name="rightHand" type="Sprite2D" parent="center" unique_id=1844092724]
+z_index = 1
+position = Vector2(11, -12)
+texture = ExtResource("10_2sux5")
+offset = Vector2(0.32, 8.36)
+
+[node name="leftHand" type="Sprite2D" parent="center" unique_id=1523976430]
+position = Vector2(-12, -12)
+scale = Vector2(-1, 1)
+texture = ExtResource("11_iqfnf")
+offset = Vector2(0.37, 8.595)
+flip_h = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=34637631]
+
+[node name="Button" type="Button" parent="CanvasLayer" unique_id=2138061817]
+offset_left = 25.0
+offset_top = 549.0
+offset_right = 62.0
+offset_bottom = 580.0
+text = "+хп"
+script = ExtResource("15_mqnmn")
+
+[node name="Button2" type="Button" parent="CanvasLayer" unique_id=1012680932]
+offset_left = 70.0
+offset_top = 549.0
+offset_right = 126.0
+offset_bottom = 580.0
+text = "+урон"
+script = ExtResource("15_mqnmn")
+effect_name = "hit"
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=372296417]
+offset_left = 21.0
+offset_top = 585.0
+offset_right = 312.0
+offset_bottom = 625.0
+color = Color(0.5439999, 1, 0.24000001, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="CanvasLayer" unique_id=946813839]
+offset_left = 32.0
+offset_top = 594.0
+offset_right = 72.0
+offset_bottom = 617.0
