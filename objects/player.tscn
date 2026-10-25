@@ -15,6 +15,7 @@
 [ext_resource type="Animation" uid="uid://c5le5oja1apyn" path="res://animations/run.res" id="13_mqnmn"]
 [ext_resource type="Animation" uid="uid://iaocee1ytycc" path="res://animations/run-idle.res" id="14_5esnd"]
 [ext_resource type="Script" uid="uid://dbhqy6wah2arr" path="res://scripts/testings/buttonEffectHp.gd" id="15_mqnmn"]
+[ext_resource type="Script" uid="uid://bfthuska12m8d" path="res://scripts/changeScene.gd" id="16_5esnd"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qljxh"]
 size = Vector2(26, 87.5)
@@ -132,13 +133,14 @@ _data = {
 &"run-idle": ExtResource("14_5esnd")
 }
 
-[node name="player" type="CharacterBody2D" unique_id=2104594944 node_paths=PackedStringArray("stamina_bar", "hands_center", "hp_label", "effect_buttons")]
+[node name="player" type="CharacterBody2D" unique_id=2104594944 node_paths=PackedStringArray("stamina_bar", "hands_center", "hp_label", "effect_buttons", "overlay_layer")]
 script = ExtResource("1_eqqp1")
 stamina_bar = NodePath("CanvasLayer/ColorRect")
 stamina_color = Color(0.54509807, 1, 0.23921569, 1)
 hands_center = NodePath("center")
 hp_label = NodePath("CanvasLayer/Label")
 effect_buttons = [NodePath("CanvasLayer/Button"), NodePath("CanvasLayer/Button2")]
+overlay_layer = NodePath("deathScreen")
 
 [node name="Node2D" type="Node2D" parent="." unique_id=340726613]
 position = Vector2(11, -16)
@@ -216,3 +218,31 @@ offset_left = 32.0
 offset_top = 594.0
 offset_right = 72.0
 offset_bottom = 617.0
+
+[node name="deathScreen" type="CanvasLayer" parent="." unique_id=2141642597]
+
+[node name="ColorRect" type="ColorRect" parent="deathScreen" unique_id=664856009]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.59607846)
+
+[node name="retry" type="Button" parent="deathScreen" unique_id=371189700]
+offset_left = 506.0
+offset_top = 244.0
+offset_right = 580.0
+offset_bottom = 275.0
+text = "еше раз"
+script = ExtResource("16_5esnd")
+target_scene_path = "uid://c3oplrupugu5h"
+
+[node name="exit" type="Button" parent="deathScreen" unique_id=1730426818]
+offset_left = 508.0
+offset_top = 277.0
+offset_right = 583.0
+offset_bottom = 308.0
+text = "ливнуть"
+script = ExtResource("16_5esnd")
+target_scene_path = "uid://ckjr67yps26t8"

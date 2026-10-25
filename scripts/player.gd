@@ -19,6 +19,7 @@ extends CharacterBody2D
 
 @export var hp_label: Label
 @export var effect_buttons: Array[Button] = []
+@export var overlay_layer: CanvasLayer
 
 const BASE_WALK_FPS := 9.0
 
@@ -163,6 +164,9 @@ func _ready() -> void:
 		if button:
 			button.pressed.connect(_on_effect_button_pressed.bind(button))
 	
+	if overlay_layer:
+		overlay_layer.visible = false
+	
 	update_hp_display()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -243,6 +247,7 @@ func _physics_process(delta: float) -> void:
 	update_hands()
 	update_animations()
 	update_hp_display()
+	update_overlay()
 
 func update_hands() -> void:
 	if hands_center:
@@ -814,6 +819,16 @@ func update_hp_display() -> void:
 			text += " %s %d" % [effect["name"], int(effect["amount"])]
 	
 	hp_label.text = text
+
+func update_overlay() -> void:
+	if not overlay_layer:
+		return
+	var total_effects := 0.0
+	for effect in active_effects:
+		total_effects += effect["amount"]
+	var is_full_of_effects := total_effects >= max_stamina
+	var is_dead := current_hp <= 0.0
+	overlay_layer.visible = is_full_of_effects or is_dead
 
 func _on_effect_button_pressed(button: Button) -> void:
 	var effect_name = button.get_meta("effect_name", "hp")
